@@ -1,0 +1,7 @@
+tunnel: fbr-demo-tunnel
+credentials-file: C:\Users\Admin\.cloudflared\a53ca23a-2fd5-4373-8a0f-b70012fc69fb.json
+
+ingress:
+  - hostname: fbr-demo.ua.co.cr
+    service: http://localhost:8000
+  - service: http_status:404

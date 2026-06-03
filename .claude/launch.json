@@ -1,0 +1,17 @@
+﻿{
+    "version":  "0.0.1",
+    "configurations":  [
+                           {
+                               "port":  8000,
+                               "runtimeExecutable":  "python",
+                               "name":  "serve-fbr-demo",
+                               "runtimeArgs":  [
+                                                   "-m",
+                                                   "http.server",
+                                                   "8000",
+                                                   "--directory",
+                                                   "C:\\Users\\Admin\\Documents\\fbr-demo"
+                                               ]
+                           }
+                       ]
+}
