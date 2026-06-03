@@ -1,4 +1,4 @@
-// Realty Platform — 4 Core Modules (Production Quality)
+// FBR Platform — 4 Core Modules (Production Quality)
 // Pipeline · Activities · Offers & Closings · Omnichannel Inbox
 // Depends on: fbr-data.js, fbr-ui.jsx
 
@@ -498,11 +498,11 @@ function Activities() {
 // MODULE 3 — OFFERS & CLOSINGS (Centro Transaccional)
 // ═══════════════════════════════════════════════════════════════════════════════
 
-function OffersClosings({ forceTab }) {
+function OffersClosings() {
   const offers = window.FBR.offers;
   const closings = window.FBR.closings;
   const [selOffer, setSelOffer] = React.useState(offers[0]);
-  const [tab, setTab] = React.useState(forceTab || 'offers');
+  const [tab, setTab] = React.useState('offers'); // 'offers' | 'closings'
 
   const totalActiveValue = offers.filter(o=>o.currentAmount).reduce((a,o)=>a+o.currentAmount, 0);
   const totalCommission = offers.filter(o=>o.currentAmount).reduce((a,o)=>a+o.commission.total, 0);
@@ -1026,114 +1026,3 @@ function OmnichannelInbox() {
 
 // Export to window
 Object.assign(window, { Pipeline, Activities, OffersClosings, OmnichannelInbox });
-
-// ─── OMNICHANNEL WORKSPACE (Inbox + Lead Inventory + Pipeline tabs) ────────────
-function OmnichannelWorkspace({ setScreen }) {
-  const [tab, setTab] = React.useState('inbox');
-  const tabs = [['inbox','Inbox'],['leads','Lead Inventory'],['pipeline','Pipeline']];
-  const innerStyle = { flex:1, overflow:'hidden', display:'flex', flexDirection:'column' };
-  return React.createElement('div', { style:{ display:'flex', flexDirection:'column', height:'calc(100vh - 104px)' } },
-    // Internal tab bar
-    React.createElement('div', { style:{ display:'flex', gap:0, borderBottom:`1px solid ${_DS.border}`, background:_DS.surface, flexShrink:0 } },
-      tabs.map(([v,l]) =>
-        React.createElement('button', { key:v, onClick:()=>setTab(v), style:{
-          padding:'12px 24px', background:'transparent', border:'none',
-          borderBottom:`2px solid ${tab===v?_DS.gold:'transparent'}`,
-          cursor:'pointer', fontSize:13, fontWeight:tab===v?700:400,
-          color:tab===v?_DS.text:_DS.text3, fontFamily:'DM Sans,sans-serif', transition:'all 0.15s'
-        } }, l)
-      ),
-    ),
-    React.createElement('div', { style:{ flex:1, overflow:'hidden', display:'flex', flexDirection:'column' } },
-      tab === 'inbox'    && React.createElement(OmnichannelInbox, {}),
-      tab === 'leads'    && React.createElement(window.LeadsInbox,  { setScreen }),
-      tab === 'pipeline' && React.createElement(window.Pipeline,    {}),
-    ),
-  );
-}
-
-// ─── SALES (Pipeline Flow + Offers + Closings tabs) ───────────────────────────
-function Sales() {
-  const [tab, setTab] = React.useState('flow');
-  const tabs = [['flow','Pipeline Flow'],['offers','Offers'],['closings','Closings']];
-  return React.createElement('div', { style:{ display:'flex', flexDirection:'column', height:'calc(100vh - 104px)' } },
-    // Tab bar
-    React.createElement('div', { style:{ display:'flex', gap:0, borderBottom:`1px solid ${_DS.border}`, background:_DS.surface, flexShrink:0 } },
-      tabs.map(([v,l]) =>
-        React.createElement('button', { key:v, onClick:()=>setTab(v), style:{
-          padding:'12px 24px', background:'transparent', border:'none',
-          borderBottom:`2px solid ${tab===v?_DS.gold:'transparent'}`,
-          cursor:'pointer', fontSize:13, fontWeight:tab===v?700:400,
-          color:tab===v?_DS.text:_DS.text3, fontFamily:'DM Sans,sans-serif', transition:'all 0.15s'
-        } }, l)
-      ),
-    ),
-    React.createElement('div', { style:{ flex:1, overflow:'auto', padding: tab==='flow'?'24px':'0' } },
-      tab === 'flow'     && React.createElement(SalesPipelineFlow, {}),
-      tab === 'offers'   && React.createElement(OffersClosings, { key:'offers',   forceTab:'offers' }),
-      tab === 'closings' && React.createElement(OffersClosings, { key:'closings', forceTab:'closings' }),
-    ),
-  );
-}
-
-// ─── SALES PIPELINE FLOW ──────────────────────────────────────────────────────
-function SalesPipelineFlow() {
-  const deals = window.FBR.pipeline.deals;
-  const offers = window.FBR.offers;
-  const closings = window.FBR.closings;
-  const stages = ['New Lead','Contacted','Qualified','Visit Scheduled','Offer Sent','Negotiation','Closed Won'];
-  const stageCount = s => deals.filter(d=>d.stage===s).length;
-  const stageVal   = s => deals.filter(d=>d.stage===s).reduce((a,d)=>a+d.value,0);
-  const totalVal = deals.reduce((a,d)=>a+d.value,0);
-  return React.createElement('div', null,
-    // Funnel summary KPIs
-    React.createElement('div', { style:{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16, marginBottom:24 } },
-      React.createElement(window.Kpi, { label:'Pipeline Deals', value:deals.length, sub:`$${(totalVal/1e6).toFixed(1)}M total value`, color:_DS.navyMid }),
-      React.createElement(window.Kpi, { label:'Active Offers', value:offers.length, sub:`${offers.filter(o=>o.status!=='pre-offer').length} in negotiation`, color:_DS.gold }),
-      React.createElement(window.Kpi, { label:'Closed YTD', value:closings.length, sub:`$${(closings.reduce((a,c)=>a+c.salePrice,0)/1e6).toFixed(1)}M volume`, color:_DS.success }),
-      React.createElement(window.Kpi, { label:'Conversion Rate', value:'18.4%', sub:'Lead to closed deal' }),
-    ),
-    // Stage funnel bars
-    React.createElement('div', { style:{ background:_DS.surface, border:`1px solid ${_DS.border}`, borderRadius:8, padding:'24px', marginBottom:20 } },
-      React.createElement('div', { style:{ fontSize:13, fontWeight:700, color:_DS.text, fontFamily:'DM Sans,sans-serif', marginBottom:20 } }, 'Deal Funnel'),
-      stages.map((s,i) => {
-        const cnt = stageCount(s); const val = stageVal(s);
-        const maxCnt = Math.max(...stages.map(stageCount), 1);
-        const pct = Math.max((cnt / maxCnt) * 100, 4);
-        const colors = ['#7A9EC0','#5A88B0','#2A5F8F','#C09B57','#D4881A','#B82929','#2B6E4A'];
-        return React.createElement('div', { key:s, style:{ display:'flex', alignItems:'center', gap:14, marginBottom:12 } },
-          React.createElement('div', { style:{ width:140, fontSize:11, fontWeight:600, color:_DS.text2, fontFamily:'DM Sans,sans-serif', flexShrink:0 } }, s),
-          React.createElement('div', { style:{ flex:1, height:28, background:_DS.bg, borderRadius:4, overflow:'hidden', position:'relative' } },
-            React.createElement('div', { style:{ width:`${pct}%`, height:'100%', background:colors[i], borderRadius:4, transition:'width 0.6s', display:'flex', alignItems:'center', paddingLeft:8 } },
-              cnt > 0 && React.createElement('span', { style:{ fontSize:11, fontWeight:700, color:'#fff', fontFamily:'DM Sans,sans-serif', whiteSpace:'nowrap' } }, `${cnt} deal${cnt!==1?'s':''}`),
-            ),
-          ),
-          React.createElement('div', { style:{ width:80, textAlign:'right', fontSize:12, fontWeight:700, color:_DS.gold, fontFamily:'DM Sans,sans-serif', flexShrink:0 } },
-            val > 0 ? `$${(val/1e6).toFixed(1)}M` : '—'
-          ),
-        );
-      }),
-    ),
-    // Deal cards
-    React.createElement('div', { style:{ background:_DS.surface, border:`1px solid ${_DS.border}`, borderRadius:8, overflow:'hidden' } },
-      React.createElement('div', { style:{ padding:'14px 20px', borderBottom:`1px solid ${_DS.border}`, display:'flex', justifyContent:'space-between', alignItems:'center' } },
-        React.createElement('span', { style:{ fontSize:13, fontWeight:700, color:_DS.text, fontFamily:'DM Sans,sans-serif' } }, 'Active Deals'),
-        React.createElement(window.Badge, { type:'gold' }, `${deals.length} deals`),
-      ),
-      deals.map(d =>
-        React.createElement('div', { key:d.id, style:{ display:'flex', alignItems:'center', gap:14, padding:'12px 20px', borderBottom:`1px solid ${_DS.borderLt}` } },
-          React.createElement(window.TempDot, { temp:d.temp }),
-          React.createElement('div', { style:{ flex:1 } },
-            React.createElement('div', { style:{ fontSize:13, fontWeight:600, color:_DS.text, fontFamily:'DM Sans,sans-serif' } }, d.lead),
-            React.createElement('div', { style:{ fontSize:11, color:_DS.text3, fontFamily:'DM Sans,sans-serif' } }, d.prop),
-          ),
-          React.createElement(window.Badge, { type: d.stage==='Negotiation'?'hot': d.stage==='Offer Sent'?'warm': d.stage==='Closed Won'?'success':'neutral' }, d.stage),
-          React.createElement(window.Avatar, { initials:d.agent.split(' ').map(w=>w[0]).join(''), color:_DS.navyMid, size:26 }),
-          React.createElement('div', { style:{ fontSize:13, fontWeight:700, color:_DS.gold, fontFamily:'DM Sans,sans-serif', minWidth:70, textAlign:'right' } }, `$${(d.value/1e6).toFixed(1)}M`),
-        )
-      ),
-    ),
-  );
-}
-
-Object.assign(window, { OmnichannelWorkspace, Sales, SalesPipelineFlow });

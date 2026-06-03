@@ -1,5 +1,5 @@
-// Realty Platform — Design System + AppShell
-// Visual DNA: Navy #163061, Gold #C09B57, White base
+// FBR Platform — Design System + AppShell
+// Visual DNA: Flamingo Beach Realty → Navy #163061, Gold #C09B57, White base
 
 const DS = {
   navy:    '#0F2340',
@@ -178,19 +178,26 @@ const NAV = [
     { id:'dashboard', label:'Dashboard' },
   ]},
   { section:'CRM', items:[
-    { id:'omnichannel', label:'Omnichannel' },
-    { id:'activities',  label:'Activities' },
+    { id:'leads',      label:'Leads Inbox' },
+    { id:'pipeline',   label:'Pipeline' },
+    { id:'activities', label:'Activities' },
+    { id:'inbox',      label:'Omnichannel Inbox' },
+    { id:'ads',        label:'Ads Intelligence' },
   ]},
-  { section:'Marketing', items:[
-    { id:'marketing', label:'Content Manager' },
-    { id:'ads',       label:'Ads Intelligence' },
+  { section:'Inventory', items:[
+    { id:'inventory',  label:'Properties' },
+    { id:'map',        label:'Inventory Map' },
+    { id:'leads-map',  label:'Leads Map' },
+    { id:'offers',     label:'Offers & Closings' },
   ]},
-  { section:'Commercial Ops', items:[
-    { id:'inventory',  label:'Inventory' },
-    { id:'sales',      label:'Sales' },
+  { section:'Market Intelligence', items:[
+    { id:'market',    label:'Market Dashboard' },
+    { id:'supdem',    label:'Supply vs Demand' },
+    { id:'pricing',   label:'Pricing Intel' },
+    { id:'recommendations', label:'Recommendations' },
   ]},
-  { section:'AI Assistant', items:[
-    { id:'ai', label:'AI Assistant' },
+  { section:'Communication', items:[
+    { id:'ai',     label:'AI Assistant' },
   ]},
   { section:'System', items:[
     { id:'reports',  label:'Reports' },
@@ -225,25 +232,6 @@ const NAV_ICONS = {
     React.createElement('line',{x1:3,y1:8.5,x2:17,y2:8.5,stroke:active?DS.gold:'rgba(255,255,255,0.55)',strokeWidth:1.5}),
     React.createElement('path',{d:'M7 12l1.5 1.5L12 11',stroke:active?DS.gold:'rgba(255,255,255,0.55)',strokeWidth:1.5,strokeLinecap:'round',strokeLinejoin:'round'}),
   ),
-  // omnichannel — multi-channel chat bubbles
-  omnichannel: (active) => React.createElement('svg',{width:18,height:18,viewBox:'0 0 20 20',fill:'none'},
-    React.createElement('path',{d:'M2 5a1.5 1.5 0 011.5-1.5h9A1.5 1.5 0 0114 5v5a1.5 1.5 0 01-1.5 1.5H9L6 14v-2.5H3.5A1.5 1.5 0 012 10V5z',stroke:active?DS.gold:'rgba(255,255,255,0.55)',strokeWidth:1.5,strokeLinejoin:'round'}),
-    React.createElement('path',{d:'M14 7.5h2.5A1.5 1.5 0 0118 9v4a1.5 1.5 0 01-1.5 1.5H15V16l-2.5-2.5h-1',stroke:active?DS.gold:'rgba(255,255,255,0.55)',strokeWidth:1.5,strokeLinejoin:'round'}),
-  ),
-  // sales — handshake / deal close
-  sales: (active) => React.createElement('svg',{width:18,height:18,viewBox:'0 0 20 20',fill:'none'},
-    React.createElement('rect',{x:3,y:2.5,width:11,height:14,rx:1.5,stroke:active?DS.gold:'rgba(255,255,255,0.55)',strokeWidth:1.5}),
-    React.createElement('line',{x1:6,y1:7,x2:11,y2:7,stroke:active?DS.gold:'rgba(255,255,255,0.55)',strokeWidth:1.5,strokeLinecap:'round'}),
-    React.createElement('line',{x1:6,y1:10,x2:11,y2:10,stroke:active?DS.gold:'rgba(255,255,255,0.55)',strokeWidth:1.5,strokeLinecap:'round'}),
-    React.createElement('path',{d:'M13.5 13.5l1.5 1.5 3-3',stroke:active?DS.gold:'rgba(255,255,255,0.55)',strokeWidth:1.5,strokeLinecap:'round',strokeLinejoin:'round'}),
-  ),
-  // marketing — megaphone
-  marketing: (active) => React.createElement('svg',{width:18,height:18,viewBox:'0 0 20 20',fill:'none'},
-    React.createElement('path',{d:'M3 8h2l9-4v12l-9-4H3a1 1 0 01-1-1v-2a1 1 0 011-1z',stroke:active?DS.gold:'rgba(255,255,255,0.55)',strokeWidth:1.5,strokeLinejoin:'round'}),
-    React.createElement('path',{d:'M5 12v4',stroke:active?DS.gold:'rgba(255,255,255,0.55)',strokeWidth:1.5,strokeLinecap:'round'}),
-    React.createElement('circle',{cx:17,cy:10,r:1.5,fill:active?DS.gold:'rgba(255,255,255,0.55)'}),
-  ),
-  // keep inbox alias for legacy
   inbox: (active) => React.createElement('svg',{width:18,height:18,viewBox:'0 0 20 20',fill:'none'},
     React.createElement('path',{d:'M2 5a1.5 1.5 0 011.5-1.5h9A1.5 1.5 0 0114 5v5a1.5 1.5 0 01-1.5 1.5H9L6 14v-2.5H3.5A1.5 1.5 0 012 10V5z',stroke:active?DS.gold:'rgba(255,255,255,0.55)',strokeWidth:1.5,strokeLinejoin:'round'}),
     React.createElement('path',{d:'M14 7.5h2.5A1.5 1.5 0 0118 9v4a1.5 1.5 0 01-1.5 1.5H15V16l-2.5-2.5h-1',stroke:active?DS.gold:'rgba(255,255,255,0.55)',strokeWidth:1.5,strokeLinejoin:'round'}),
@@ -340,15 +328,11 @@ function Sidebar({ active, setScreen, collapsed, setCollapsed }) {
         ? React.createElement('div', { style:{ width:32, height:32, background:DS.gold, borderRadius:6, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 } },
             React.createElement('span', { style:{ fontSize:16, fontWeight:900, color:DS.navy, fontFamily:'DM Sans,sans-serif' } }, 'F')
           )
-        : React.createElement('div', { style:{ display:'flex', alignItems:'center', gap:10 } },
-            React.createElement('div', { style:{ width:32, height:32, background:DS.gold, borderRadius:6, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 } },
-              React.createElement('span', { style:{ fontSize:14, fontWeight:900, color:DS.navy, fontFamily:'DM Sans,sans-serif', letterSpacing:'-0.5px' } }, 'AR'),
-            ),
-            React.createElement('div', null,
-              React.createElement('div', { style:{ fontSize:13, fontWeight:700, color:'#fff', fontFamily:'DM Sans,sans-serif', letterSpacing:'0.02em', lineHeight:1 } }, 'Acme Realty'),
-              React.createElement('div', { style:{ fontSize:9, color:'rgba(255,255,255,0.45)', fontFamily:'DM Sans,sans-serif', marginTop:3, letterSpacing:'0.08em', textTransform:'uppercase' } }, 'Mock CRM'),
-            ),
-          ),
+        : React.createElement('img', {
+            src:'fbr-logo.png',
+            alt:'Flamingo Beach Realty',
+            style:{ height:40, maxWidth:192, objectFit:'contain', objectPosition:'left center', display:'block', mixBlendMode:'screen' },
+          }),
     ),
     // Nav
     React.createElement('nav', { style:{ flex:1, overflowY:'auto', padding:'8px 0', scrollbarWidth:'none' } },
@@ -396,20 +380,12 @@ function Sidebar({ active, setScreen, collapsed, setCollapsed }) {
 
 function Topbar({ screen, setScreen }) {
   const labels = {
-    dashboard:'Executive Dashboard',
-    omnichannel:'Omnichannel',
-    activities:'Activities Center',
-    ads:'Ads Intelligence',
-    sales:'Sales',
-    marketing:'Marketing',
-    inventory:'Properties',
-    ai:'AI Assistant',
-    reports:'Reports',
-    branding:'Branding & Settings',
-    propdetail:'Property Detail',
-    // legacy aliases (safe fallback)
-    leads:'Lead Inventory', pipeline:'Omnichannel', inbox:'Omnichannel',
-    offers:'Sales', map:'Properties', 'leads-map':'Properties',
+    dashboard:'Executive Dashboard', leads:'Leads Inbox', pipeline:'Pipeline',
+    activities:'Activities Center', inbox:'Omnichannel Inbox', offers:'Offers & Closings', ads:'Ads Intelligence',
+    inventory:'Properties', map:'Inventory Map', 'leads-map':'Leads Map',
+    market:'Market Intelligence', supdem:'Supply vs Demand', pricing:'Pricing Intelligence',
+    recommendations:'Recommendations', ai:'AI Assistant', reports:'Reports',
+    branding:'Branding & Settings', propdetail:'Property Detail',
   };
   return React.createElement('header', {
     style:{ height:56, background:DS.surface, borderBottom:`1px solid ${DS.border}`,

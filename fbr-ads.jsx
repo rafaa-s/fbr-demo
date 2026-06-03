@@ -1,6 +1,6 @@
-// Realty Platform — Ads Intelligence Module
-// Main tabs: Dashboard · Campaign Performance · Creative Performance ·
-// Campaign Detail: Overview · Geographic Performance · Recommendations
+// FBR Platform — Ads Intelligence Module
+// 6 Views: Dashboard · Campaign Performance · Creative Performance ·
+//          Source-to-Pipeline Attribution · Geographic Performance · Recommendations
 // Depends on: fbr-data.js, fbr-ui.jsx
 
 const _adsDS  = window.DS;
@@ -79,10 +79,12 @@ function MetricCell({ label, value, sub, color, small }) {
 
 // ─── ADS SUB-NAV ──────────────────────────────────────────────────────────────
 const ADS_VIEWS = [
-  { id:'ads-dashboard',   label:'Dashboard',          icon:'◈' },
-  { id:'ads-campaigns',   label:'Campaign Performance',icon:'⊞' },
-  { id:'ads-attribution', label:'Source → Pipeline',  icon:'⇄' },
-  { id:'ads-recs',        label:'Recommendations',     icon:'✦' },
+  { id:'ads-dashboard',     label:'Dashboard',          icon:'◈' },
+  { id:'ads-campaigns',     label:'Campaign Performance',icon:'⊞' },
+  { id:'ads-creatives',     label:'Creative Performance',icon:'◧' },
+  { id:'ads-attribution',   label:'Source → Pipeline',  icon:'⇄' },
+  { id:'ads-geo',           label:'Geographic',          icon:'◎' },
+  { id:'ads-recs',          label:'Recommendations',     icon:'✦' },
 ];
 
 function AdsSubNav({ active, setView }) {
@@ -109,7 +111,7 @@ function AdsSubNav({ active, setView }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 // VIEW 1 — ADS DASHBOARD
 // ═══════════════════════════════════════════════════════════════════════════════
-function AdsDashboard({ setView, setScreen, onSelectCampaign }) {
+function AdsDashboard({ setView, setScreen }) {
   const ads = window.FBR.ads;
   const { summary, daily, campaigns } = ads;
 
@@ -242,8 +244,6 @@ function AdsDashboard({ setView, setScreen, onSelectCampaign }) {
       ),
       campaigns.map(c =>
         React.createElement('div', { key:c.id,
-          onDoubleClick:()=>onSelectCampaign&&onSelectCampaign(c),
-          title:'Double-click to open Campaign Detail',
           style:{ display:'grid', gridTemplateColumns:'2.5fr 0.7fr 0.7fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 1fr', padding:'11px 20px', borderBottom:`1px solid ${_adsDS.borderLt}`, alignItems:'center', fontSize:12, fontFamily:'DM Sans,sans-serif',
             background: c.alert&&c.status==='active'?'rgba(184,41,41,0.025)':'transparent',
             opacity: c.status==='paused'?0.55:1 }
@@ -271,7 +271,7 @@ function AdsDashboard({ setView, setScreen, onSelectCampaign }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 // VIEW 2 — CAMPAIGN PERFORMANCE
 // ═══════════════════════════════════════════════════════════════════════════════
-function CampaignPerformance({ onSelectCampaign }) {
+function CampaignPerformance() {
   const campaigns = window.FBR.ads.campaigns;
   const [sort, setSort] = React.useState('qualityScore');
   const [selCamp, setSelCamp] = React.useState(campaigns[0]);
@@ -302,8 +302,6 @@ function CampaignPerformance({ onSelectCampaign }) {
       React.createElement('div', { style:{ flex:1, overflowY:'auto' } },
         sorted.map(c =>
           React.createElement('div', { key:c.id, onClick:()=>setSelCamp(c),
-            onDoubleClick:()=>onSelectCampaign&&onSelectCampaign(c),
-            title:'Double-click to open Campaign Detail',
             style:{ display:'flex', gap:0, padding:'14px 20px', borderBottom:`1px solid ${_adsDS.borderLt}`, cursor:'pointer', alignItems:'center',
               background: selCamp?.id===c.id?'rgba(192,155,87,0.05)': c.alert&&c.status==='active'?'rgba(184,41,41,0.02)':'transparent',
               borderLeft:`3px solid ${selCamp?.id===c.id?_adsDS.gold: c.alert&&c.status==='active'?'#B82929':'transparent'}`,
@@ -578,7 +576,7 @@ function SourceAttribution({ setScreen }) {
             { label:'Ad-sourced leads in Inbox', value:'6 of 8', icon:'◻', screen:'inbox' },
             { label:'Pipeline deals from ads', value:'5 of 8 deals', icon:'⊞', screen:'pipeline' },
             { label:'Active offers — ad sourced', value:'3 of 4', icon:'◫', screen:'offers' },
-            { label:'Best matched inventory', value:'AR-002, AR-006', icon:'⊟', screen:'inventory' },
+            { label:'Best matched inventory', value:'FBR-631, FBR-409', icon:'⊟', screen:'inventory' },
           ].map((r,i) =>
             React.createElement('div', { key:i, onClick:()=>setScreen(r.screen),
               style:{ display:'flex', gap:10, padding:'8px 0', borderBottom:`1px solid rgba(255,255,255,0.07)`, cursor:'pointer', alignItems:'center' } },
@@ -676,13 +674,13 @@ function GeoPerformance() {
           React.createElement(QualityBar, { score:selCountry.qualityScore }),
         ),
         React.createElement('div', { style:{ marginTop:14, background:_adsDS.bg, borderRadius:8, padding:'12px 14px', border:`1px solid ${_adsDS.border}` } },
-          React.createElement('div', { style:{ fontSize:11, fontWeight:700, color:_adsDS.gold, fontFamily:'DM Sans,sans-serif', marginBottom:4 } }, '💡 Insight'),
+          React.createElement('div', { style:{ fontSize:11, fontWeight:700, color:_adsDS.gold, fontFamily:'DM Sans,sans-serif', marginBottom:4 } }, '💡 Market Intelligence'),
           React.createElement('div', { style:{ fontSize:12, color:_adsDS.text2, fontFamily:'DM Sans,sans-serif', lineHeight:1.7 } },
-            selCountry.country==='United States' ? 'Primary market. Scale Meta lookalike campaigns. Top zones: Cape Vista, Bay Heights. Avg budget $4.2M aligns well with top inventory.' :
-            selCountry.country==='Canada' ? 'Second largest market. CPL competitive. Stone Ridge resonates strongly with Canadian lifestyle buyers. Increase budget by 30%.' :
+            selCountry.country==='United States' ? 'Primary market. Scale Meta lookalike campaigns. Top zones: Papagayo, Flamingo. Avg budget $4.2M aligns well with top inventory.' :
+            selCountry.country==='Canada' ? 'Second largest market. CPL competitive. Las Catalinas resonates strongly with Canadian lifestyle buyers. Increase budget by 30%.' :
             selCountry.country==='Germany' ? 'Smallest spend, highest conversion rate (25%). HNW buyers seeking ultra-premium assets. Expand immediately with dedicated campaign.' :
-            selCountry.country==='United Kingdom' ? 'High avg budget $5.8M. Lead pattern suggests strong luxury demand. Expand Google Search targeting UK-based real estate queries.' :
-            selCountry.country==='Other' ? 'Local development buyers. Direct channel dominates. The largest deal ($29.9M) originated here. Maintain relationship focus over paid.' :
+            selCountry.country==='United Kingdom' ? 'High avg budget $5.8M. Emma Langford pattern suggests strong luxury demand. Expand Google Search targeting UK-based CR real estate queries.' :
+            selCountry.country==='Costa Rica' ? 'Local development buyers. Direct channel dominates. Punta Sabana deal ($29.9M) originated here. Maintain relationship focus over paid.' :
             'Emerging market. Monitor CPL and quality. Consider small-scale test campaign targeting HNW in major cities.',
           ),
         ),
@@ -740,251 +738,28 @@ function AdsRecommendations({ setView }) {
 // ═══════════════════════════════════════════════════════════════════════════════
 function AdsIntelligence({ setScreen }) {
   const [view, setView] = React.useState('ads-dashboard');
-  const [selectedCampaign, setSelectedCampaign] = React.useState(null);
-
-  const handleSelectCampaign = (c) => { setSelectedCampaign(c); setView('ads-campaign-detail'); };
 
   let content;
   switch(view) {
-    case 'ads-dashboard':      content = React.createElement(AdsDashboard,       { setView, setScreen, onSelectCampaign:handleSelectCampaign }); break;
-    case 'ads-campaigns':      content = React.createElement(CampaignPerformance, { onSelectCampaign:handleSelectCampaign }); break;
-    case 'ads-attribution':    content = React.createElement(SourceAttribution,   { setView, setScreen }); break;
-    case 'ads-recs':           content = React.createElement(AdsRecommendations,  { setView }); break;
-    case 'ads-campaign-detail':content = React.createElement(CampaignDetail,      { campaign:selectedCampaign, onBack:()=>setView('ads-campaigns') }); break;
-    default:                   content = React.createElement(AdsDashboard,        { setView, setScreen, onSelectCampaign:handleSelectCampaign });
+    case 'ads-dashboard':   content = React.createElement(AdsDashboard,       { setView, setScreen }); break;
+    case 'ads-campaigns':   content = React.createElement(CampaignPerformance, {}); break;
+    case 'ads-creatives':   content = React.createElement(CreativePerformance, {}); break;
+    case 'ads-attribution': content = React.createElement(SourceAttribution,  { setView, setScreen }); break;
+    case 'ads-geo':         content = React.createElement(GeoPerformance,      {}); break;
+    case 'ads-recs':        content = React.createElement(AdsRecommendations,  { setView }); break;
+    default:                content = React.createElement(AdsDashboard,        { setView, setScreen });
   }
 
-  const showSubNav = view !== 'ads-campaign-detail';
   return React.createElement('div', { style:{ display:'flex', flexDirection:'column', gap:0, height:'calc(100vh - 104px)', overflow:'hidden' } },
-    showSubNav && React.createElement('div', { style:{ flexShrink:0 } },
+    // Header strip
+    React.createElement('div', { style:{ flexShrink:0, padding:'0 0 0 0' } },
       React.createElement(AdsSubNav, { active:view, setView }),
     ),
+    // Content
     React.createElement('div', { style:{ flex:1, overflowY:'auto', padding:'20px 2px 20px 2px' } },
       React.createElement('div', { style:{ padding:'0 2px' } }, content),
     ),
   );
 }
 
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// CAMPAIGN DETAIL — opened via double-click from campaign rows
-// ═══════════════════════════════════════════════════════════════════════════════
-function CampaignDetail({ campaign, onBack }) {
-  const [tab, setTab] = React.useState('overview');
-  if (!campaign) return null;
-
-  const allCreatives = window.FBR.ads.creatives || [];
-  const allCountries = window.FBR.ads.countries  || [];
-  const allRecs      = window.FBR.ads.recommendations || [];
-
-  const creatives = allCreatives.filter(cr => cr.campaignId === campaign.id);
-
-  const targetTags = (campaign.targetCountry || '').split('/').map(t => t.trim().toLowerCase());
-  let geoData = allCountries.filter(c =>
-    targetTags.some(t => c.country.toLowerCase().includes(t) || t.includes(c.country.split(' ')[0].toLowerCase()))
-  );
-  if (!geoData.length) geoData = allCountries.slice(0,2);
-
-  const campRecs = allRecs.filter(r => r.campaign === campaign.id);
-
-  const DETAIL_TABS = [
-    { id:'overview', label:'Overview' },
-    { id:'creative', label:'Creative Performance' },
-    { id:'geo',      label:'Geographic' },
-    { id:'attrib',   label:'Attribution' },
-    { id:'recs',     label:'Recommendations' },
-  ];
-
-  return React.createElement('div', { style:{ display:'flex', flexDirection:'column', gap:0 } },
-    // Back bar
-    React.createElement('div', { style:{ display:'flex', alignItems:'center', gap:12, marginBottom:16 } },
-      React.createElement('button', { onClick:onBack, style:{ background:'none', border:`1px solid ${_adsDS.border}`, borderRadius:6, padding:'6px 14px', cursor:'pointer', fontSize:12, color:_adsDS.text2, fontFamily:'DM Sans,sans-serif' } }, '← Back'),
-      React.createElement(PlatformTag, { platform:campaign.platform }),
-      React.createElement('div', { style:{ flex:1 } },
-        React.createElement('div', { style:{ fontSize:16, fontWeight:700, color:_adsDS.text, fontFamily:'DM Sans,sans-serif' } }, campaign.name),
-        React.createElement('div', { style:{ fontSize:11, color:_adsDS.text3, fontFamily:'DM Sans,sans-serif' } }, `${campaign.targetCountry} · ${campaign.objective}`),
-      ),
-      React.createElement(_adsBadge, { type: campaign.status==='active'?'active':'neutral' }, campaign.status),
-    ),
-    // Sub-tabs
-    React.createElement('div', { style:{ display:'flex', borderBottom:`1px solid ${_adsDS.border}`, marginBottom:20, background:_adsDS.surface, border:`1px solid ${_adsDS.border}`, borderRadius:'8px 8px 0 0', overflow:'hidden' } },
-      DETAIL_TABS.map(t =>
-        React.createElement('button', { key:t.id, onClick:()=>setTab(t.id), style:{
-          padding:'11px 20px', background:'transparent', border:'none',
-          borderBottom:`2px solid ${tab===t.id?_adsDS.gold:'transparent'}`,
-          cursor:'pointer', fontSize:12, fontWeight:tab===t.id?700:400,
-          color:tab===t.id?_adsDS.text:_adsDS.text3, fontFamily:'DM Sans,sans-serif', transition:'all 0.15s'
-        } }, t.label)
-      ),
-    ),
-    tab === 'overview' && React.createElement(CDOverview, { campaign }),
-    tab === 'creative' && React.createElement(CDCreative, { creatives, campaign }),
-    tab === 'geo'      && React.createElement(CDGeo,      { geoData, campaign }),
-    tab === 'attrib'   && React.createElement(CDAttrib,   { campaign }),
-    tab === 'recs'     && React.createElement(CDRecs,     { recs:campRecs }),
-  );
-}
-
-function CDOverview({ campaign: c }) {
-  const qual  = c.qualityScore;
-  const qColor = qual>=80 ? _adsDS.success : qual>=60 ? _adsDS.gold : '#B82929';
-  return React.createElement('div', { style:{ display:'flex', flexDirection:'column', gap:20 } },
-    React.createElement('div', { style:{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16 } },
-      React.createElement(_adsKpi, { label:'Spend', value:`${(c.spend/1000).toFixed(1)}K`, sub:`${c.budget}/day`, color:_adsDS.gold }),
-      React.createElement(_adsKpi, { label:'Leads', value:c.leads, sub:`CPL ${c.cpl}`, color:_adsDS.navyMid }),
-      React.createElement(_adsKpi, { label:'Quality Score', value:qual, sub:qual>=80?'Excellent':qual>=60?'Good':'Needs work', color:qColor }),
-      React.createElement(_adsKpi, { label:'Pipeline Value', value:c.pipelineValue?`${(c.pipelineValue/1e6).toFixed(1)}M`:'—', sub:`${c.opportunities} opps`, color:_adsDS.success }),
-    ),
-    React.createElement('div', { style:{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:20 } },
-      React.createElement('div', { style:{ background:_adsDS.surface, border:`1px solid ${_adsDS.border}`, borderRadius:8, padding:'20px 24px' } },
-        React.createElement('div', { style:{ fontSize:13, fontWeight:700, color:_adsDS.text, fontFamily:'DM Sans,sans-serif', marginBottom:16 } }, 'Campaign Metrics'),
-        [
-          ['Impressions', c.impressions?.toLocaleString()],
-          ['Clicks', c.clicks?.toLocaleString()],
-          ['CTR', `${c.ctr}%`],
-          ['CPC', `${c.cpc}`],
-          ['CPM', `${c.cpm}`],
-          ['Audience', c.audience],
-          ['Zone', c.zone],
-          ['Trend', c.trend],
-        ].map(([k,v]) =>
-          React.createElement('div', { key:k, style:{ display:'flex', justifyContent:'space-between', padding:'8px 0', borderBottom:`1px solid ${_adsDS.borderLt}`, fontSize:12, fontFamily:'DM Sans,sans-serif' } },
-            React.createElement('span', { style:{ color:_adsDS.text3 } }, k),
-            React.createElement('span', { style:{ color:_adsDS.text, fontWeight:600 } }, v || '—'),
-          )
-        ),
-      ),
-      React.createElement('div', { style:{ background:_adsDS.surface, border:`1px solid ${_adsDS.border}`, borderRadius:8, padding:'20px 24px' } },
-        React.createElement('div', { style:{ fontSize:13, fontWeight:700, color:_adsDS.text, fontFamily:'DM Sans,sans-serif', marginBottom:16 } }, 'Health'),
-        React.createElement('div', { style:{ marginBottom:14 } },
-          React.createElement('div', { style:{ display:'flex', justifyContent:'space-between', fontSize:11, fontFamily:'DM Sans,sans-serif', marginBottom:6 } },
-            React.createElement('span', { style:{ color:_adsDS.text2, fontWeight:600 } }, 'Quality Score'),
-            React.createElement('span', { style:{ color:_adsDS.text3 } }, `${qual}/100`),
-          ),
-          React.createElement(QualityBar, { score:qual }),
-        ),
-        c.fatigue
-          ? React.createElement('div', { style:{ background:'#FDE8E8', border:'1px solid rgba(184,41,41,0.2)', borderRadius:6, padding:'10px 14px', marginBottom:12 } },
-              React.createElement('div', { style:{ fontSize:12, fontWeight:700, color:'#B82929', fontFamily:'DM Sans,sans-serif' } }, '⚠ Fatigue Detected'),
-              React.createElement('div', { style:{ fontSize:11, color:_adsDS.text2, fontFamily:'DM Sans,sans-serif', marginTop:4 } }, c.alert),
-            )
-          : React.createElement('div', { style:{ background:'#E3F2EA', border:'1px solid rgba(43,110,74,0.2)', borderRadius:6, padding:'10px 14px', marginBottom:12 } },
-              React.createElement('div', { style:{ fontSize:12, fontWeight:700, color:_adsDS.success, fontFamily:'DM Sans,sans-serif' } }, '✓ No fatigue — healthy'),
-            ),
-        React.createElement('div', { style:{ fontSize:10, fontWeight:700, color:_adsDS.text3, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:6, fontFamily:'DM Sans,sans-serif' } }, 'Budget Utilisation'),
-        React.createElement('div', { style:{ height:6, background:_adsDS.borderLt, borderRadius:3 } },
-          React.createElement('div', { style:{ width:'84%', height:'100%', background:_adsDS.gold, borderRadius:3 } }),
-        ),
-      ),
-    ),
-  );
-}
-
-function CDCreative({ creatives, campaign }) {
-  if (!creatives.length) return React.createElement('div', { style:{ background:_adsDS.surface, border:`1px solid ${_adsDS.border}`, borderRadius:8, padding:'48px', textAlign:'center', color:_adsDS.text3, fontFamily:'DM Sans,sans-serif' } },
-    React.createElement('div', { style:{ fontSize:22, marginBottom:10 } }, '◧'),
-    React.createElement('div', { style:{ fontSize:14, fontWeight:600 } }, 'No creatives assigned to this campaign'),
-  );
-  return React.createElement('div', { style:{ background:_adsDS.surface, border:`1px solid ${_adsDS.border}`, borderRadius:8, overflow:'hidden' } },
-    React.createElement('div', { style:{ padding:'14px 20px', borderBottom:`1px solid ${_adsDS.border}` } },
-      React.createElement('span', { style:{ fontSize:13, fontWeight:700, color:_adsDS.text, fontFamily:'DM Sans,sans-serif' } }, `Creatives — ${campaign.name}`),
-    ),
-    React.createElement('div', { style:{ display:'grid', gridTemplateColumns:'2.5fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 1fr', padding:'8px 20px', background:_adsDS.bg, fontSize:10, fontWeight:700, color:_adsDS.text3, letterSpacing:'0.08em', textTransform:'uppercase', fontFamily:'DM Sans,sans-serif' } },
-      ['Creative','Type','Impressions','Leads','CTR','CPL','Status'].map(h=>React.createElement('span',{key:h},h)),
-    ),
-    creatives.map(cr =>
-      React.createElement('div', { key:cr.id, style:{ display:'grid', gridTemplateColumns:'2.5fr 0.8fr 0.8fr 0.8fr 0.8fr 0.8fr 1fr', padding:'12px 20px', borderBottom:`1px solid ${_adsDS.borderLt}`, fontSize:12, fontFamily:'DM Sans,sans-serif', alignItems:'center' } },
-        React.createElement('div', { style:{ display:'flex', gap:10, alignItems:'center' } },
-          cr.thumb && React.createElement('img', { src:cr.thumb, style:{ width:44, height:34, objectFit:'cover', borderRadius:4, flexShrink:0 }, onError:e=>e.target.style.display='none' }),
-          React.createElement('div', null,
-            React.createElement('div', { style:{ fontWeight:600, color:_adsDS.text, fontSize:11, maxWidth:220, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' } }, cr.name),
-            cr.note && React.createElement('div', { style:{ fontSize:9, color:_adsDS.text3, marginTop:2 } }, cr.note),
-          ),
-        ),
-        React.createElement('span', { style:{ color:_adsDS.text2 } }, cr.type),
-        React.createElement('span', { style:{ color:_adsDS.text2 } }, cr.impressions?.toLocaleString()),
-        React.createElement('span', { style:{ fontWeight:700, color:_adsDS.navyMid } }, cr.leads),
-        React.createElement('span', { style:{ fontWeight:700, color:cr.ctr>4?_adsDS.success:_adsDS.text } }, `${cr.ctr}%`),
-        React.createElement('span', { style:{ fontWeight:700, color:cr.cpl<120?_adsDS.success:cr.cpl>200?'#B82929':_adsDS.text } }, `${cr.cpl}`),
-        React.createElement(FatigueTag, { risk:cr.fatigueRisk }),
-      )
-    ),
-  );
-}
-
-function CDGeo({ geoData, campaign }) {
-  const total = geoData.reduce((a,c)=>a+c.leads,0) || 1;
-  return React.createElement('div', { style:{ background:_adsDS.surface, border:`1px solid ${_adsDS.border}`, borderRadius:8, padding:'24px' } },
-    React.createElement('div', { style:{ fontSize:13, fontWeight:700, color:_adsDS.text, fontFamily:'DM Sans,sans-serif', marginBottom:4 } }, `Geographic — ${campaign.name}`),
-    React.createElement('div', { style:{ fontSize:11, color:_adsDS.text3, fontFamily:'DM Sans,sans-serif', marginBottom:20 } }, `Target: ${campaign.targetCountry}`),
-    geoData.map(c =>
-      React.createElement('div', { key:c.country, style:{ marginBottom:18 } },
-        React.createElement('div', { style:{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:6 } },
-          React.createElement('div', { style:{ display:'flex', gap:8, alignItems:'center' } },
-            React.createElement('span', { style:{ fontSize:18 } }, c.flag),
-            React.createElement('div', null,
-              React.createElement('div', { style:{ fontSize:12, fontWeight:700, color:_adsDS.text, fontFamily:'DM Sans,sans-serif' } }, c.country),
-              React.createElement('div', { style:{ fontSize:10, color:_adsDS.text3, fontFamily:'DM Sans,sans-serif' } }, `CPL ${c.cpl} · Q:${c.qualityScore}`),
-            ),
-          ),
-          React.createElement('div', { style:{ textAlign:'right' } },
-            React.createElement('div', { style:{ fontSize:14, fontWeight:800, color:_adsDS.gold, fontFamily:'DM Sans,sans-serif' } }, `${(c.pipelineValue/1e6).toFixed(1)}M`),
-            React.createElement('div', { style:{ fontSize:10, color:_adsDS.text3, fontFamily:'DM Sans,sans-serif' } }, `${c.leads} leads`),
-          ),
-        ),
-        React.createElement('div', { style:{ height:6, background:_adsDS.borderLt, borderRadius:3 } },
-          React.createElement('div', { style:{ width:`${Math.round(c.leads/total*100)}%`, height:'100%', background:_adsDS.gold, borderRadius:3 } }),
-        ),
-      )
-    ),
-  );
-}
-
-function CDAttrib({ campaign: c }) {
-  const steps = [
-    { label:'Impressions',   value:(c.impressions||0).toLocaleString(), icon:'👁' },
-    { label:'Clicks',        value:(c.clicks||0).toLocaleString(),       icon:'↗' },
-    { label:'Visits',        value:(c.visits||0).toLocaleString(),       icon:'🌐' },
-    { label:'Leads',         value:c.leads,                              icon:'⬡' },
-    { label:'Opportunities', value:c.opportunities,                      icon:'◈' },
-    { label:'Pipeline',      value:c.pipelineValue?`${(c.pipelineValue/1e6).toFixed(1)}M`:'—', icon:'💰' },
-    { label:'Closings',      value:c.closings||0,                        icon:'✓' },
-  ];
-  return React.createElement('div', { style:{ background:_adsDS.surface, border:`1px solid ${_adsDS.border}`, borderRadius:8, padding:'24px' } },
-    React.createElement('div', { style:{ fontSize:13, fontWeight:700, color:_adsDS.text, fontFamily:'DM Sans,sans-serif', marginBottom:20 } }, `Attribution Funnel — ${c.name}`),
-    steps.map((step, i) =>
-      React.createElement('div', { key:step.label, style:{ display:'flex', alignItems:'center', gap:14, marginBottom:14 } },
-        React.createElement('div', { style:{ width:32, height:32, borderRadius:'50%', background:i===0?_adsDS.navyMid:i===steps.length-1?_adsDS.success:_adsDS.bg, display:'flex', alignItems:'center', justifyContent:'center', fontSize:14, flexShrink:0, border:`1px solid ${_adsDS.border}` } }, step.icon),
-        React.createElement('div', { style:{ flex:1, height:6, background:_adsDS.bg, borderRadius:3 } },
-          React.createElement('div', { style:{ width:`${Math.max(8, 100 - i*12)}%`, height:'100%', background:i===steps.length-1?_adsDS.success:_adsDS.gold, borderRadius:3 } }),
-        ),
-        React.createElement('div', { style:{ minWidth:100, textAlign:'right' } },
-          React.createElement('div', { style:{ fontSize:13, fontWeight:700, color:_adsDS.text, fontFamily:'DM Sans,sans-serif' } }, step.value),
-          React.createElement('div', { style:{ fontSize:10, color:_adsDS.text3, fontFamily:'DM Sans,sans-serif' } }, step.label),
-        ),
-      )
-    ),
-  );
-}
-
-function CDRecs({ recs }) {
-  if (!recs || !recs.length) return React.createElement('div', { style:{ background:_adsDS.surface, border:`1px solid ${_adsDS.border}`, borderRadius:8, padding:'48px', textAlign:'center', fontFamily:'DM Sans,sans-serif' } },
-    React.createElement('div', { style:{ fontSize:22, marginBottom:10, color:_adsDS.success } }, '✓'),
-    React.createElement('div', { style:{ fontSize:14, fontWeight:600, color:_adsDS.success } }, 'No urgent recommendations for this campaign.'),
-  );
-  return React.createElement('div', { style:{ display:'flex', flexDirection:'column', gap:12 } },
-    recs.map((r,i) =>
-      React.createElement('div', { key:i, style:{ background:_adsDS.bg, border:`1px solid ${_adsDS.border}`, borderRadius:8, padding:'16px 20px', display:'flex', gap:12 } },
-        React.createElement('span', { style:{ fontSize:20 } }, r.icon),
-        React.createElement('div', { style:{ flex:1 } },
-          React.createElement('div', { style:{ fontSize:13, fontWeight:700, color:_adsDS.text, fontFamily:'DM Sans,sans-serif', marginBottom:4 } }, r.title),
-          React.createElement('div', { style:{ fontSize:12, color:_adsDS.text2, fontFamily:'DM Sans,sans-serif', lineHeight:1.6 } }, r.detail),
-          React.createElement('div', { style:{ fontSize:11, fontWeight:700, color:_adsDS.gold, marginTop:8, fontFamily:'DM Sans,sans-serif' } }, r.impact),
-        ),
-      )
-    ),
-  );
-}
-
-Object.assign(window, { AdsIntelligence, CampaignDetail });
-
+Object.assign(window, { AdsIntelligence });

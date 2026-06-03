@@ -1,4 +1,4 @@
-// Realty Platform — All Screens
+// FBR Platform — All Screens
 // Depends on: fbr-data.js, fbr-ui.jsx
 
 const { listings, leads, market, pipeline, agents } = window.FBR;
@@ -39,7 +39,7 @@ function Dashboard({ setScreen }) {
     untouched > 0 && React.createElement('div', {
       style:{ background:'#FDF0DC', border:`1px solid #E4B866`, borderRadius:8, padding:'12px 20px',
         display:'flex', alignItems:'center', gap:12, marginBottom:20, cursor:'pointer' },
-      onClick:()=>setScreen('omnichannel')
+      onClick:()=>setScreen('leads')
     },
       React.createElement('span', { style:{ fontSize:16 } }, '⚠️'),
       React.createElement('span', { style:{ fontSize:13, fontWeight:600, color:'#7A4F0A', fontFamily:'DM Sans,sans-serif' } },
@@ -48,7 +48,7 @@ function Dashboard({ setScreen }) {
 
     // KPI row
     React.createElement('div', { style:{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16, marginBottom:24 } },
-      React.createElement(Kpi, { label:'Active Leads', value:kpis.activeLeads, sub:`${hot} hot right now`, icon:'⬡', color:DS.navyMid, onClick:()=>setScreen('omnichannel') }),
+      React.createElement(Kpi, { label:'Active Leads', value:kpis.activeLeads, sub:`${hot} hot right now`, icon:'⬡', color:DS.navyMid, onClick:()=>setScreen('leads') }),
       React.createElement(Kpi, { label:'Pipeline Value', value:`$${(kpis.pipelineValue/1e6).toFixed(1)}M`, sub:'Across 8 active deals', icon:'◈', color:DS.gold }),
       React.createElement(Kpi, { label:'Monthly Volume', value:`$${(kpis.monthlyVolume/1e6).toFixed(1)}M`, sub:'+18% vs last month', icon:'↑', color:DS.success }),
       React.createElement(Kpi, { label:'Inventory Active', value:kpis.totalInventory, sub:`${kpis.avgDaysOnMarket}d avg on market`, icon:'⊟', onClick:()=>setScreen('inventory') }),
@@ -75,7 +75,7 @@ function Dashboard({ setScreen }) {
         React.createElement('div', { style:{ background:DS.surface, border:`1px solid ${DS.border}`, borderRadius:8, padding:'20px 24px' } },
           React.createElement('div', { style:{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 } },
             React.createElement('span', { style:{ fontSize:13, fontWeight:700, color:DS.text, fontFamily:'DM Sans,sans-serif' } }, 'Pipeline — Active Deals'),
-            React.createElement('span', { onClick:()=>setScreen('omnichannel'), style:{ fontSize:11, color:DS.gold, cursor:'pointer', fontFamily:'DM Sans,sans-serif', fontWeight:600 } }, 'Full Board →'),
+            React.createElement('span', { onClick:()=>setScreen('pipeline'), style:{ fontSize:11, color:DS.gold, cursor:'pointer', fontFamily:'DM Sans,sans-serif', fontWeight:600 } }, 'Full Board →'),
           ),
           pipeline.deals.slice(0,5).map(d =>
             React.createElement('div', { key:d.id, style:{ display:'flex', alignItems:'center', gap:10, padding:'8px 0', borderBottom:`1px solid ${DS.borderLt}` } },
@@ -140,14 +140,34 @@ function Dashboard({ setScreen }) {
         // Leads requiring action
         React.createElement('div', { style:{ background:DS.surface, border:`1px solid ${DS.border}`, borderRadius:8, overflow:'hidden' } },
           React.createElement('div', { style:{ padding:'16px 20px', borderBottom:`1px solid ${DS.border}`, display:'flex', justifyContent:'space-between', alignItems:'center' } },
-            React.createElement('span', { style:{ fontSize:13, fontWeight:700, color:DS.text, fontFamily:'DM Sans,sans-serif' } }, 'Lead Inventory'),
-            React.createElement('span', { onClick:()=>setScreen('omnichannel'), style:{ fontSize:11, color:DS.gold, cursor:'pointer', fontFamily:'DM Sans,sans-serif', fontWeight:600 } }, 'All →'),
+            React.createElement('span', { style:{ fontSize:13, fontWeight:700, color:DS.text, fontFamily:'DM Sans,sans-serif' } }, 'Priority Leads'),
+            React.createElement('span', { onClick:()=>setScreen('leads'), style:{ fontSize:11, color:DS.gold, cursor:'pointer', fontFamily:'DM Sans,sans-serif', fontWeight:600 } }, 'All →'),
           ),
           leads.slice(0,6).map(l =>
-            React.createElement(LeadRow, { key:l.id, lead:l, onClick:()=>setScreen('omnichannel') }),
+            React.createElement(LeadRow, { key:l.id, lead:l, onClick:()=>setScreen('leads') }),
           ),
         ),
 
+        // Market snapshot
+        React.createElement('div', { style:{ background:DS.navy, border:`1px solid ${DS.navyMid}`, borderRadius:8, padding:'20px 24px' } },
+          React.createElement('div', { style:{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,0.9)', fontFamily:'DM Sans,sans-serif', marginBottom:4 } }, '🗺 Santa Cruz Market'),
+          React.createElement('div', { style:{ fontSize:10, color:'rgba(255,255,255,0.4)', fontFamily:'DM Sans,sans-serif', marginBottom:16 } }, 'Guanacaste · Live snapshot'),
+          market.zones.slice(0,4).map(z =>
+            React.createElement('div', { key:z.name, style:{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10 } },
+              React.createElement('div', null,
+                React.createElement('div', { style:{ fontSize:11, fontWeight:600, color:'rgba(255,255,255,0.8)', fontFamily:'DM Sans,sans-serif' } }, z.name),
+                React.createElement('div', { style:{ fontSize:10, color:'rgba(255,255,255,0.4)', fontFamily:'DM Sans,sans-serif' } }, `S:${z.supply} D:${z.demand}`),
+              ),
+              React.createElement('div', { style:{ textAlign:'right' } },
+                React.createElement('div', { style:{ fontSize:11, fontWeight:700, color: z.priceChg.startsWith('+') ? '#5DBF8A':'#F87171', fontFamily:'DM Sans,sans-serif' } }, z.priceChg),
+                React.createElement('div', { style:{ fontSize:9, color:'rgba(255,255,255,0.35)', fontFamily:'DM Sans,sans-serif' } }, 'price chg'),
+              ),
+            )
+          ),
+          React.createElement('div', { onClick:()=>setScreen('market'), style:{ marginTop:14, borderTop:`1px solid rgba(255,255,255,0.1)`, paddingTop:12, fontSize:11, color:DS.goldLt, cursor:'pointer', fontFamily:'DM Sans,sans-serif', fontWeight:600 } },
+            'Open Market Intelligence →'
+          ),
+        ),
       ),
     ),
 
@@ -158,7 +178,7 @@ function Dashboard({ setScreen }) {
       React.createElement('div', { style:{ background:DS.navy, padding:'16px 24px', display:'flex', alignItems:'center', gap:0 } },
         React.createElement('div', { style:{ flex:1 } },
           React.createElement('div', { style:{ fontSize:9, fontWeight:700, color:'rgba(255,255,255,0.3)', letterSpacing:'0.14em', textTransform:'uppercase', fontFamily:'DM Sans,sans-serif', marginBottom:2 } }, 'Paid Media · Meta + Google Ads · Mar 22 – Apr 20'),
-          React.createElement('div', { style:{ fontSize:16, fontWeight:700, color:'#fff', fontFamily:'DM Sans,sans-serif' } }, 'Ads Intelligence — Mock 30-day window'),
+          React.createElement('div', { style:{ fontSize:16, fontWeight:700, color:'#fff', fontFamily:'DM Sans,sans-serif' } }, 'Ads Intelligence — Santa Cruz, Guanacaste'),
         ),
         [
           { label:'Spend 30d', value:'$22.8K' , color:'rgba(255,255,255,0.9)' },
@@ -295,7 +315,7 @@ function Dashboard({ setScreen }) {
           ),
           React.createElement('div', { onClick:()=>setScreen('ads'), style:{ marginTop:12, padding:'8px 10px', background:DS.goldDim, border:`1px solid rgba(192,155,87,0.3)`, borderRadius:6, cursor:'pointer' } },
             React.createElement('div', { style:{ fontSize:9, fontWeight:700, color:DS.gold, fontFamily:'DM Sans,sans-serif', marginBottom:2 } }, '🚀 Top Recommendation'),
-            React.createElement('div', { style:{ fontSize:10, color:DS.text2, fontFamily:'DM Sans,sans-serif', lineHeight:1.5 } }, 'Scale C-006 Luxury Coastal — CTR 6%, CPL $114. Underbudgeted at $120/day.'),
+            React.createElement('div', { style:{ fontSize:10, color:DS.text2, fontFamily:'DM Sans,sans-serif', lineHeight:1.5 } }, 'Scale C-006 Luxury Guanacaste — CTR 6%, CPL $114. Subestimado a $120/día.'),
           ),
         ),
       ),
@@ -473,7 +493,7 @@ function Inventory({ setScreen, setSelectedProp }) {
           background: view===v?DS.navy:'white', cursor:'pointer',
           fontSize:12, color:view===v?'white':DS.text2, fontFamily:'DM Sans,sans-serif'
         } }, v==='grid'?'⊞ Grid':'☰ List')),
-
+        React.createElement('button', { onClick:()=>setScreen('map'), style:{ padding:'6px 14px', borderRadius:6, border:`1px solid ${DS.navy}`, background:DS.navy, cursor:'pointer', fontSize:12, color:'#fff', fontFamily:'DM Sans,sans-serif', fontWeight:600 } }, '◎ Map View'),
       ),
     ),
     view==='grid'
@@ -579,7 +599,7 @@ function PropertyDetail({ prop, setScreen }) {
             React.createElement(Avatar, { initials:prop.agent.split(' ').map(w=>w[0]).join(''), color:DS.gold, size:40 }),
             React.createElement('div', null,
               React.createElement('div', { style:{ fontSize:13, fontWeight:700, color:DS.text, fontFamily:'DM Sans,sans-serif' } }, prop.agent),
-              React.createElement('div', { style:{ fontSize:11, color:DS.text3, fontFamily:'DM Sans,sans-serif' } }, 'Acme Realty'),
+              React.createElement('div', { style:{ fontSize:11, color:DS.text3, fontFamily:'DM Sans,sans-serif' } }, 'Flamingo Beach Realty'),
             ),
           ),
         ),
@@ -588,67 +608,273 @@ function PropertyDetail({ prop, setScreen }) {
   );
 }
 
-// ─── AI ASSISTANT (ChatGPT-style for business/app questions) ──────────────
+// ─── MARKET INTELLIGENCE ───────────────────────────────────────────────────
+function MarketDashboard({ setScreen }) {
+  return React.createElement('div', null,
+    React.createElement('div', { style:{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16, marginBottom:24 } },
+      React.createElement(Kpi, { label:'Total Market Listings', value:117, sub:'Santa Cruz, Guanacaste' }),
+      React.createElement(Kpi, { label:'Own vs Market', value:'12.8%', sub:'8 of 63 active listings', color:DS.gold }),
+      React.createElement(Kpi, { label:'Avg Absorption Rate', value:'56%', sub:'Across all zones', color:DS.success }),
+      React.createElement(Kpi, { label:'Fastest Zone', value:'Papagayo', sub:'71% absorption · +6.1%', color:DS.navyMid }),
+    ),
+    React.createElement('div', { style:{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:20 } },
+      // Zone table
+      React.createElement('div', { style:{ background:DS.surface, border:`1px solid ${DS.border}`, borderRadius:8, overflow:'hidden' } },
+        React.createElement('div', { style:{ padding:'16px 20px', borderBottom:`1px solid ${DS.border}`, display:'flex', justifyContent:'space-between' } },
+          React.createElement('span', { style:{ fontSize:13, fontWeight:700, color:DS.text, fontFamily:'DM Sans,sans-serif' } }, 'Zone Performance Overview'),
+          React.createElement('span', { onClick:()=>setScreen('supdem'), style:{ fontSize:11, color:DS.gold, cursor:'pointer', fontFamily:'DM Sans,sans-serif', fontWeight:600 } }, 'Supply vs Demand →'),
+        ),
+        React.createElement('div', null,
+          React.createElement('div', { style:{ display:'grid', gridTemplateColumns:'1.5fr 0.7fr 0.7fr 0.8fr 0.8fr', padding:'8px 20px', background:DS.bg, fontSize:10, fontWeight:700, color:DS.text3, letterSpacing:'0.08em', textTransform:'uppercase', fontFamily:'DM Sans,sans-serif' } },
+            ['Zone','Supply','Demand','Absorption','Price Δ'].map(h=>React.createElement('span',{key:h},h)),
+          ),
+          market.zones.map(z =>
+            React.createElement('div', { key:z.name, style:{ display:'grid', gridTemplateColumns:'1.5fr 0.7fr 0.7fr 0.8fr 0.8fr', padding:'12px 20px', borderBottom:`1px solid ${DS.borderLt}`, fontSize:13, fontFamily:'DM Sans,sans-serif', alignItems:'center' } },
+              React.createElement('span', { style:{ fontWeight:600, color:DS.text } }, z.name),
+              React.createElement('span', { style:{ color:DS.text2 } }, z.supply),
+              React.createElement('span', { style:{ color:DS.text2 } }, z.demand),
+              React.createElement('div', { style:{ display:'flex', alignItems:'center', gap:6 } },
+                React.createElement('div', { style:{ width:40, height:4, background:DS.borderLt, borderRadius:2 } },
+                  React.createElement('div', { style:{ width:`${z.absorption}%`, height:'100%', background: z.absorption>60?DS.success:z.absorption>40?DS.warn:DS.danger, borderRadius:2 } }),
+                ),
+                React.createElement('span', { style:{ fontSize:11, color:DS.text2 } }, `${z.absorption}%`),
+              ),
+              React.createElement('span', { style:{ fontWeight:700, color: z.priceChg.startsWith('+')?DS.success:DS.danger } }, z.priceChg),
+            )
+          ),
+        ),
+      ),
+      // Hot scores
+      React.createElement('div', { style:{ background:DS.surface, border:`1px solid ${DS.border}`, borderRadius:8, padding:'20px 24px' } },
+        React.createElement('div', { style:{ fontSize:13, fontWeight:700, color:DS.text, fontFamily:'DM Sans,sans-serif', marginBottom:16 } }, 'Zone Heat Score'),
+        market.zones.sort((a,b)=>b.hotScore-a.hotScore).map(z =>
+          React.createElement('div', { key:z.name, style:{ marginBottom:14 } },
+            React.createElement('div', { style:{ display:'flex', justifyContent:'space-between', marginBottom:4, fontSize:12, fontFamily:'DM Sans,sans-serif' } },
+              React.createElement('span', { style:{ color:DS.text, fontWeight:600 } }, z.name),
+              React.createElement('span', { style:{ color: z.hotScore>80?DS.danger:z.hotScore>60?DS.warn:DS.text3, fontWeight:700 } }, z.hotScore),
+            ),
+            React.createElement('div', { style:{ height:6, background:DS.borderLt, borderRadius:3 } },
+              React.createElement('div', { style:{ width:`${z.hotScore}%`, height:'100%', borderRadius:3, transition:'width 1s',
+                background: z.hotScore>80?'linear-gradient(90deg,#C09B57,#E8C97A)':'linear-gradient(90deg,#163061,#2A4F8F)' } }),
+            ),
+          )
+        ),
+      ),
+    ),
+  );
+}
+
+// ─── SUPPLY VS DEMAND ──────────────────────────────────────────────────────
+function SupplyDemand() {
+  return React.createElement('div', null,
+    React.createElement('div', { style:{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16, marginBottom:24 } },
+      React.createElement(Kpi, { label:'Zones with Demand Gap', value:4, sub:'More buyers than listings', color:DS.gold }),
+      React.createElement(Kpi, { label:'Oversupplied Zones', value:2, sub:'Hacienda Pinilla, Potrero', color:DS.danger }),
+      React.createElement(Kpi, { label:'Hottest Opportunity', value:'Peninsula Papagayo', sub:'+6.1% / 71% absorption' }),
+    ),
+    React.createElement('div', { style:{ background:DS.surface, border:`1px solid ${DS.border}`, borderRadius:8, padding:'24px', marginBottom:20 } },
+      React.createElement('div', { style:{ fontSize:13, fontWeight:700, color:DS.text, fontFamily:'DM Sans,sans-serif', marginBottom:20 } }, 'Supply vs Demand by Zone'),
+      React.createElement('div', { style:{ display:'flex', flexDirection:'column', gap:16 } },
+        market.zones.map(z => {
+          const maxVal = 50, gap = z.demand - z.supply;
+          return React.createElement('div', { key:z.name },
+            React.createElement('div', { style:{ display:'flex', justifyContent:'space-between', fontSize:12, fontFamily:'DM Sans,sans-serif', marginBottom:6, alignItems:'center' } },
+              React.createElement('span', { style:{ fontWeight:600, color:DS.text, minWidth:160 } }, z.name),
+              React.createElement('div', { style:{ display:'flex', gap:6, alignItems:'center' } },
+                React.createElement(Badge, { type: gap>5?'hot': gap>0?'warm': gap===0?'neutral':'navy', small:true },
+                  gap>0 ? `Demand +${gap}` : gap<0 ? `Oversupply ${gap}` : 'Balanced'),
+                React.createElement('span', { style:{ fontSize:11, color:DS.text3 } }, `$${(z.avgPrice/1e6).toFixed(1)}M avg`),
+              ),
+            ),
+            React.createElement('div', { style:{ display:'flex', gap:2, alignItems:'center' } },
+              React.createElement('span', { style:{ fontSize:10, color:DS.text3, fontFamily:'DM Sans,sans-serif', minWidth:56 } }, 'Supply'),
+              React.createElement('div', { style:{ flex:1, height:10, background:DS.borderLt, borderRadius:2, position:'relative' } },
+                React.createElement('div', { style:{ position:'absolute', left:0, top:0, height:'100%', width:`${(z.supply/maxVal)*100}%`, background:DS.navyMid, borderRadius:2, opacity:0.7 } }),
+                React.createElement('div', { style:{ position:'absolute', left:0, top:0, height:'100%', width:`${(z.demand/maxVal)*100}%`, background:DS.gold, borderRadius:2, opacity:0.5 } }),
+              ),
+              React.createElement('span', { style:{ fontSize:10, color:DS.text3, fontFamily:'DM Sans,sans-serif', minWidth:56, textAlign:'right' } }, 'Demand'),
+            ),
+            React.createElement('div', { style:{ display:'flex', justifyContent:'space-between', fontSize:10, color:DS.text3, fontFamily:'DM Sans,sans-serif', marginTop:2, paddingLeft:56, paddingRight:56 } },
+              React.createElement('span', null, z.supply),
+              React.createElement('span', null, z.demand),
+            ),
+          );
+        }),
+      ),
+      React.createElement('div', { style:{ marginTop:16, display:'flex', gap:16, fontSize:11, fontFamily:'DM Sans,sans-serif', color:DS.text3 } },
+        React.createElement('div', { style:{ display:'flex', alignItems:'center', gap:6 } },
+          React.createElement('div', { style:{ width:12, height:8, background:DS.navyMid, borderRadius:1, opacity:0.7 } }),
+          React.createElement('span', null, 'Supply (active listings)'),
+        ),
+        React.createElement('div', { style:{ display:'flex', alignItems:'center', gap:6 } },
+          React.createElement('div', { style:{ width:12, height:8, background:DS.gold, borderRadius:1, opacity:0.7 } }),
+          React.createElement('span', null, 'Demand (lead intent)'),
+        ),
+      ),
+    ),
+  );
+}
+
+// ─── PRICING INTELLIGENCE ──────────────────────────────────────────────────
+function PricingIntel() {
+  return React.createElement('div', null,
+    React.createElement('div', { style:{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:16, marginBottom:20 } },
+      React.createElement(Kpi, { label:'At Risk (Overpriced)', value:3, sub:'vs zone comparables', color:DS.danger }),
+      React.createElement(Kpi, { label:'Competitively Priced', value:4, sub:'Within 5% of market', color:DS.success }),
+      React.createElement(Kpi, { label:'Below Market', value:1, sub:'Price drop opportunity', color:DS.gold }),
+      React.createElement(Kpi, { label:'Avg $/sqft (Zone)', value:'$847', sub:'Flamingo–Potrero corridor' }),
+    ),
+    React.createElement('div', { style:{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:20 } },
+      React.createElement('div', { style:{ background:DS.surface, border:`1px solid ${DS.border}`, borderRadius:8, overflow:'hidden' } },
+        React.createElement('div', { style:{ padding:'16px 20px', borderBottom:`1px solid ${DS.border}` } },
+          React.createElement('span', { style:{ fontSize:13, fontWeight:700, color:DS.text, fontFamily:'DM Sans,sans-serif' } }, 'Property Pricing Status'),
+        ),
+        listings.filter(l=>l.pricePerSqft).map(l => {
+          const marketAvg = 847;
+          const diff = ((l.pricePerSqft - marketAvg)/marketAvg*100);
+          const status = diff > 15 ? 'overpriced' : diff > -5 ? 'ok' : 'below';
+          return React.createElement('div', { key:l.id, style:{ display:'flex', gap:12, padding:'12px 20px', borderBottom:`1px solid ${DS.borderLt}`, alignItems:'center' } },
+            React.createElement('img', { src:l.photo1, style:{ width:44, height:34, objectFit:'cover', borderRadius:4, flexShrink:0 }, onError:e=>e.target.style.display='none' }),
+            React.createElement('div', { style:{ flex:1 } },
+              React.createElement('div', { style:{ fontSize:12, fontWeight:600, color:DS.text, fontFamily:'DM Sans,sans-serif' } }, l.title),
+              React.createElement('div', { style:{ fontSize:11, color:DS.text3, fontFamily:'DM Sans,sans-serif' } }, `$${l.pricePerSqft}/ft² · ${l.sqft?.toLocaleString()} ft²`),
+            ),
+            React.createElement(Badge, { type: status==='overpriced'?'danger': status==='below'?'gold':'success' },
+              status==='overpriced' ? `+${diff.toFixed(0)}% above` : status==='below' ? `${diff.toFixed(0)}% below` : 'At market'),
+          );
+        }),
+      ),
+      React.createElement('div', { style:{ display:'flex', flexDirection:'column', gap:16 } },
+        React.createElement('div', { style:{ background:DS.surface, border:`1px solid ${DS.border}`, borderRadius:8, padding:'20px 24px' } },
+          React.createElement('div', { style:{ fontSize:13, fontWeight:700, color:DS.text, fontFamily:'DM Sans,sans-serif', marginBottom:16 } }, 'Price Change — Last 30 Days'),
+          React.createElement(MiniBar, { data:[
+            {l:'Flamingo',v:4.2},{l:'Catalinas',v:2.8},{l:'Papagayo',v:6.1},
+            {l:'Pinilla',v:-1.1},{l:'Potrero',v:-0.5},{l:'Tamarindo',v:3.3},
+          ].map(d=>({l:d.l,v:Math.abs(d.v)})), height:100, color:DS.gold }),
+        ),
+        React.createElement('div', { style:{ background:DS.navy, border:`1px solid ${DS.navyMid}`, borderRadius:8, padding:'20px 24px' } },
+          React.createElement('div', { style:{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,0.9)', fontFamily:'DM Sans,sans-serif', marginBottom:12 } }, '💡 Pricing Recommendations'),
+          [
+            { prop:'Casa Alegria', rec:'Price drop of 8% recommended — 112 days without visit', type:'warn' },
+            { prop:'The Palms #33', rec:'Reduce by 5% to match comparable condos in Flamingo', type:'warn' },
+            { prop:'Villa El Alma', rec:'Competitively priced. High demand zone — hold.', type:'ok' },
+          ].map((r,i) =>
+            React.createElement('div', { key:i, style:{ padding:'10px 0', borderBottom:`1px solid rgba(255,255,255,0.08)` } },
+              React.createElement('div', { style:{ fontSize:12, fontWeight:700, color: r.type==='warn'?'#FBBF24':'#5DBF8A', fontFamily:'DM Sans,sans-serif' } }, r.prop),
+              React.createElement('div', { style:{ fontSize:11, color:'rgba(255,255,255,0.6)', fontFamily:'DM Sans,sans-serif', marginTop:2 } }, r.rec),
+            )
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+// ─── RECOMMENDATIONS ───────────────────────────────────────────────────────
+function Recommendations({ setScreen }) {
+  const recs = [
+    { icon:'🔥', type:'urgent', title:'Reactivate Roberto Vega Salinas', desc:'14 days without contact. Budget $2M–$4M. The Palms #33 is a strong match. Send WhatsApp now.', action:'Open Lead', screen:'leads' },
+    { icon:'⚠️', type:'warn', title:'Review Casa Alegria pricing', desc:'112 days on market. Zero visits last 30 days. Reduce price by 8% to align with Las Catalinas comparables.', action:'See Property', screen:'inventory' },
+    { icon:'🌟', type:'gold', title:'Emma Langford — push to close', desc:'Highest-scoring lead (97). Offer pending on Casa Alegria. Schedule final walkthrough this week.', action:'Open Lead', screen:'leads' },
+    { icon:'📍', type:'info', title:'Peninsula Papagayo zone heating up', desc:'+6.1% price change. 71% absorption rate. Prioritize acquiring new listings in this zone.', action:'Market Intel', screen:'market' },
+    { icon:'🤝', type:'match', title:'Klaus Müller ↔ Villa El Alma', desc:'Near-perfect match score. 7 engaged sessions. Propose virtual tour and due diligence package.', action:'Open Deal', screen:'pipeline' },
+    { icon:'📊', type:'info', title:'Tamarindo showing high demand gap', desc:'44 demand signals vs 31 active listings. Recommend onboarding 3–4 new Tamarindo listings.', action:'Supply vs Demand', screen:'supdem' },
+    { icon:'💰', type:'gold', title:'Andersons Trust — proposal stalled 3 days', desc:'Offer sent on Casa Todo Bien. Follow up with financing options and updated market comps.', action:'Open Deal', screen:'pipeline' },
+  ];
+  const colors = { urgent:'#FDE8E8', warn:'#FDF0DC', gold:DS.goldDim, info:'rgba(22,48,97,0.06)', match:'#E3F2EA' };
+  const textColors = { urgent:DS.danger, warn:DS.warn, gold:DS.gold, info:DS.navyMid, match:DS.success };
+  return React.createElement('div', null,
+    React.createElement('div', { style:{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 } },
+      recs.map((r,i) =>
+        React.createElement('div', { key:i, style:{ background:colors[r.type], border:`1px solid ${textColors[r.type]}30`, borderRadius:8, padding:'20px', display:'flex', flexDirection:'column', gap:8 } },
+          React.createElement('div', { style:{ display:'flex', gap:10, alignItems:'flex-start' } },
+            React.createElement('span', { style:{ fontSize:20 } }, r.icon),
+            React.createElement('div', { style:{ flex:1 } },
+              React.createElement('div', { style:{ fontSize:14, fontWeight:700, color:textColors[r.type], fontFamily:'DM Sans,sans-serif', marginBottom:4 } }, r.title),
+              React.createElement('div', { style:{ fontSize:12, color:DS.text2, fontFamily:'DM Sans,sans-serif', lineHeight:1.6 } }, r.desc),
+            ),
+          ),
+          React.createElement('button', { onClick:()=>setScreen(r.screen), style:{ alignSelf:'flex-start', padding:'6px 14px', background:textColors[r.type], color:'#fff', border:'none', borderRadius:6, cursor:'pointer', fontSize:11, fontWeight:700, fontFamily:'DM Sans,sans-serif' } }, r.action+' →'),
+        )
+      ),
+    ),
+  );
+}
+
+// ─── AI ASSISTANT ──────────────────────────────────────────────────────────
 function AIAssistant() {
   const [msgs, setMsgs] = React.useState([
-    { role:'assistant', text:'Hi! I\'m your AI assistant. I can help you with questions about the platform, your data, analytics, or business strategy. What would you like to know?' },
+    { role:'system', text:'AI Assistant online. New lead from web form — WhatsApp integration active.' },
+    { role:'ai', text:'Hola, soy asistente virtual de Flamingo Beach Realty. ¿En qué puedo ayudarle hoy? Puedo responder sobre propiedades en Guanacaste, Santa Cruz.' },
+    { role:'lead', name:'Roberto Vega', text:'Hola, estoy buscando un condominio frente al mar en Flamingo, presupuesto hasta 4 millones.' },
+    { role:'ai', text:'¡Perfecto! Tenemos una opción ideal: **The Palms #33** en Playa Flamingo — 3 bed / 3.5 bath, 2,831 ft², vistas directas al océano, $3,600,000. También cuento con otras opciones en el rango $3M–$4M. ¿Prefiere agendar una visita virtual o presencial? 🏠', matched:'FBR-492' },
+    { role:'lead', name:'Roberto Vega', text:'Presencial preferiblemente. ¿Cuándo hay disponibilidad?' },
+    { role:'ai', text:'Puedo coordinar una visita presencial para este jueves o viernes. Le conectaré ahora con nuestra agente Jennifer Walsh quien tiene disponibilidad ambos días. ¿A qué hora le funciona mejor?' },
+    { role:'escalate', text:'→ Escalando a Jennifer Walsh · Lead calificado · Presupuesto confirmado $3–4M · Interés: Flamingo beachfront condo' },
   ]);
   const [input, setInput] = React.useState('');
+  const matched = listings.find(l=>l.id==='FBR-492');
 
-  const handleSend = () => {
-    if (!input.trim()) return;
-    const userMsg = { role:'user', text:input.trim() };
-    setMsgs(prev => [...prev, userMsg]);
-    setInput('');
-    
-    setTimeout(() => {
-      const responses = [
-        'Based on your current data, you have 8 active leads with a combined pipeline value of $18.7M. The top 3 leads (score 90+) account for $12.4M of that value.',
-        'Your Ads Intelligence shows a 818x ROAS over the last 30 days. Meta campaigns are outperforming Google with a 4.2% CTR vs 2.8%. Consider scaling the "Luxury Coastal" campaign — it has the lowest CPL at $114.',
-        'Looking at your inventory, the average days on market is 47 days. Properties in Bay Heights are moving fastest (28 days avg), while Stone Ridge properties are sitting longer (68 days). You might want to review pricing for AR-003 and AR-007.',
-        'Your sales pipeline shows 8 active deals across 7 stages. 3 are in negotiation (total value $8.2M). The conversion rate from qualified lead to closed deal is 18.4%, which is solid for luxury real estate.',
-        'Content Manager shows Instagram is your best-performing platform with 4.2% engagement rate. Your "Market Insights" campaign has generated 47K reach. Consider publishing more educational content — it\'s driving 2x engagement vs listing posts.',
-      ];
-      const aiMsg = { role:'assistant', text:responses[Math.floor(Math.random()*responses.length)] };
-      setMsgs(prev => [...prev, aiMsg]);
-    }, 800);
-  };
-
-  return React.createElement('div', { style:{ display:'flex', flexDirection:'column', height:'calc(100vh - 120px)', maxWidth:900, margin:'0 auto' } },
-    React.createElement('div', { style:{ padding:'20px 24px', background:DS.surface, border:`1px solid ${DS.border}`, borderRadius:'8px 8px 0 0', borderBottom:'none' } },
-      React.createElement('div', { style:{ fontSize:18, fontWeight:700, color:DS.text, fontFamily:'DM Sans,sans-serif', marginBottom:4 } }, '🤖 AI Assistant'),
-      React.createElement('div', { style:{ fontSize:13, color:DS.text3, fontFamily:'DM Sans,sans-serif' } }, 'Ask me anything about your platform, data, analytics, or business strategy.'),
-    ),
-    React.createElement('div', { style:{ flex:1, overflowY:'auto', padding:'24px', background:'#FAFAF8', border:`1px solid ${DS.border}`, borderTop:'none', borderBottom:'none', display:'flex', flexDirection:'column', gap:16 } },
-      msgs.map((m,i) => {
-        const isUser = m.role === 'user';
-        return React.createElement('div', { key:i, style:{ display:'flex', justifyContent:isUser?'flex-end':'flex-start', gap:12 } },
-          !isUser && React.createElement('div', { style:{ width:36, height:36, borderRadius:'50%', background:'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:18, color:'#fff', flexShrink:0 } }, '🤖'),
-          React.createElement('div', {
-            style:{ maxWidth:'75%', padding:'12px 16px', borderRadius:isUser?'16px 4px 16px 16px':'4px 16px 16px 16px',
-              background:isUser?DS.navy:'#fff', border:isUser?'none':`1px solid ${DS.border}`,
-              color:isUser?'#fff':DS.text, fontSize:14, fontFamily:'DM Sans,sans-serif', lineHeight:1.6,
-              boxShadow:isUser?'none':'0 1px 3px rgba(0,0,0,0.06)' }
-          }, m.text),
-          isUser && React.createElement('div', { style:{ width:36, height:36, borderRadius:'50%', background:DS.gold, display:'flex', alignItems:'center', justifyContent:'center', fontSize:14, color:'#fff', fontWeight:700, flexShrink:0, fontFamily:'DM Sans,sans-serif' } }, 'U'),
-        );
-      }),
-    ),
-    React.createElement('div', { style:{ padding:'16px 24px', background:DS.surface, border:`1px solid ${DS.border}`, borderRadius:'0 0 8px 8px', borderTop:'none' } },
-      React.createElement('div', { style:{ display:'flex', gap:12, alignItems:'center' } },
-        React.createElement('input', {
-          value:input, onChange:e=>setInput(e.target.value),
-          onKeyDown:e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); handleSend(); }},
-          placeholder:'Ask me anything about your data, analytics, or business strategy…',
-          style:{ flex:1, padding:'11px 16px', border:`1px solid ${DS.border}`, borderRadius:8, fontSize:14, fontFamily:'DM Sans,sans-serif', outline:'none', background:'#fff' }
-        }),
-        React.createElement('button', {
-          onClick:handleSend, disabled:!input.trim(),
-          style:{ padding:'11px 24px', background:input.trim()?DS.navy:DS.bg, color:input.trim()?'#fff':DS.text3, border:'none', borderRadius:8, cursor:input.trim()?'pointer':'not-allowed', fontSize:14, fontWeight:700, fontFamily:'DM Sans,sans-serif', transition:'background 0.15s' }
-        }, 'Send'),
+  return React.createElement('div', { style:{ display:'grid', gridTemplateColumns:'1fr 320px', gap:20, height:'calc(100vh - 120px)' } },
+    // Chat
+    React.createElement('div', { style:{ background:DS.surface, border:`1px solid ${DS.border}`, borderRadius:8, display:'flex', flexDirection:'column', overflow:'hidden' } },
+      React.createElement('div', { style:{ padding:'16px 20px', borderBottom:`1px solid ${DS.border}`, display:'flex', gap:10, alignItems:'center' } },
+        React.createElement('div', { style:{ width:10, height:10, borderRadius:'50%', background:'#5DBF8A' } }),
+        React.createElement('span', { style:{ fontSize:13, fontWeight:700, color:DS.text, fontFamily:'DM Sans,sans-serif' } }, 'AI Conversation — Roberto Vega Salinas'),
+        React.createElement(Badge, { type:'warm' }, 'WhatsApp'),
+        React.createElement('div', { style:{ marginLeft:'auto' } },
+          React.createElement(Badge, { type:'gold' }, '◆ AI Active'),
+        ),
       ),
-      React.createElement('div', { style:{ fontSize:11, color:DS.text3, fontFamily:'DM Sans,sans-serif', marginTop:10 } },
-        'Try: "What\'s my pipeline status?" • "Which campaigns are performing best?" • "Show me inventory insights"',
+      React.createElement('div', { style:{ flex:1, overflowY:'auto', padding:'20px', display:'flex', flexDirection:'column', gap:12 } },
+        msgs.map((m,i) =>
+          m.role==='system' ? React.createElement('div', { key:i, style:{ textAlign:'center', fontSize:11, color:DS.text3, fontFamily:'DM Sans,sans-serif', padding:'4px 12px', background:DS.bg, borderRadius:20, alignSelf:'center' } }, m.text) :
+          m.role==='escalate' ? React.createElement('div', { key:i, style:{ background:'#E3F2EA', border:`1px solid #5DBF8A40`, borderRadius:6, padding:'10px 14px', fontSize:12, color:DS.success, fontFamily:'DM Sans,sans-serif', fontWeight:600 } }, m.text) :
+          React.createElement('div', { key:i, style:{ display:'flex', gap:8, justifyContent: m.role==='lead'?'flex-end':'flex-start' } },
+            m.role==='ai' && React.createElement('div', { style:{ width:28, height:28, borderRadius:'50%', background:DS.navy, display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, color:DS.gold, flexShrink:0 } }, '◆'),
+            React.createElement('div', { style:{
+              maxWidth:'70%', padding:'10px 14px', borderRadius:8, fontSize:13, fontFamily:'DM Sans,sans-serif', lineHeight:1.6,
+              background: m.role==='lead' ? DS.gold : DS.bg,
+              color: m.role==='lead' ? '#fff' : DS.text,
+            } },
+              m.role==='lead' && React.createElement('div', { style:{ fontSize:10, fontWeight:700, marginBottom:4, color:'rgba(255,255,255,0.7)' } }, m.name),
+              m.text,
+            ),
+          )
+        ),
+      ),
+      React.createElement('div', { style:{ padding:'14px 16px', borderTop:`1px solid ${DS.border}`, display:'flex', gap:8 } },
+        React.createElement('input', { value:input, onChange:e=>setInput(e.target.value), placeholder:'Type a message or monitor AI…', style:{ flex:1, border:`1px solid ${DS.border}`, borderRadius:6, padding:'8px 12px', fontSize:13, fontFamily:'DM Sans,sans-serif', outline:'none' } }),
+        React.createElement('button', { style:{ padding:'8px 16px', background:DS.navy, color:'#fff', border:'none', borderRadius:6, cursor:'pointer', fontSize:12, fontFamily:'DM Sans,sans-serif', fontWeight:600 } }, 'Send'),
+      ),
+    ),
+    // Right panel — AI context
+    React.createElement('div', { style:{ display:'flex', flexDirection:'column', gap:16 } },
+      React.createElement('div', { style:{ background:DS.surface, border:`1px solid ${DS.border}`, borderRadius:8, padding:'16px 20px' } },
+        React.createElement('div', { style:{ fontSize:11, fontWeight:700, color:DS.text3, letterSpacing:'0.08em', textTransform:'uppercase', marginBottom:12, fontFamily:'DM Sans,sans-serif' } }, 'AI Detected Intent'),
+        [['Property type','Beachfront Condo'],['Zone','Playa Flamingo'],['Budget','$3M – $4M'],['Language','Spanish'],['Timeline','Short'],['Use','Investment/Personal']].map(([k,v])=>
+          React.createElement('div',{key:k,style:{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:`1px solid ${DS.borderLt}`,fontSize:12,fontFamily:'DM Sans,sans-serif'}},
+            React.createElement('span',{style:{color:DS.text3}},k),
+            React.createElement('span',{style:{color:DS.text,fontWeight:600}},v),
+          )
+        ),
+      ),
+      matched && React.createElement('div', { style:{ background:DS.surface, border:`1px solid ${DS.border}`, borderRadius:8, overflow:'hidden' } },
+        React.createElement('div', { style:{ fontSize:11, fontWeight:700, color:DS.text3, letterSpacing:'0.08em', textTransform:'uppercase', padding:'12px 16px', fontFamily:'DM Sans,sans-serif' } }, 'AI Match'),
+        React.createElement('img', { src:matched.photo1, style:{ width:'100%', height:120, objectFit:'cover' }, onError:()=>{} }),
+        React.createElement('div', { style:{ padding:'12px 16px' } },
+          React.createElement('div', { style:{ fontSize:13, fontWeight:700, color:DS.text, fontFamily:'DM Sans,sans-serif' } }, matched.title),
+          React.createElement('div', { style:{ fontSize:11, color:DS.text3, fontFamily:'DM Sans,sans-serif', marginBottom:4 } }, matched.neighborhood),
+          React.createElement('div', { style:{ fontSize:14, fontWeight:700, color:DS.gold, fontFamily:'DM Sans,sans-serif' } }, matched.price),
+        ),
+      ),
+      React.createElement('div', { style:{ background:DS.navy, borderRadius:8, padding:'16px 20px' } },
+        React.createElement('div', { style:{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.5)', letterSpacing:'0.08em', textTransform:'uppercase', marginBottom:8, fontFamily:'DM Sans,sans-serif' } }, 'AI Next Action'),
+        React.createElement('div', { style:{ fontSize:13, color:'rgba(255,255,255,0.9)', fontFamily:'DM Sans,sans-serif', lineHeight:1.6, marginBottom:12 } }, 'Suggest in-person tour Thursday at 10am. Include financing information package. Escalate to Jennifer Walsh.'),
+        React.createElement('div', { style:{ display:'flex', gap:8 } },
+          React.createElement('button', { style:{ flex:1, padding:'8px', background:DS.gold, color:DS.navy, border:'none', borderRadius:6, cursor:'pointer', fontSize:11, fontWeight:700, fontFamily:'DM Sans,sans-serif' } }, 'Accept'),
+          React.createElement('button', { style:{ flex:1, padding:'8px', background:'rgba(255,255,255,0.1)', color:'#fff', border:'none', borderRadius:6, cursor:'pointer', fontSize:11, fontFamily:'DM Sans,sans-serif' } }, 'Edit'),
+        ),
       ),
     ),
   );
@@ -657,8 +883,8 @@ function AIAssistant() {
 // ─── BRANDING SETTINGS ─────────────────────────────────────────────────────
 function BrandingSettings() {
   const [primary, setPrimary] = React.useState('#C09B57');
-  const [brandName, setBrandName] = React.useState('Acme Realty');
-  const [mktName, setMktName] = React.useState('Coastal Region');
+  const [brandName, setBrandName] = React.useState('Flamingo Beach Realty');
+  const [mktName, setMktName] = React.useState('Santa Cruz, Guanacaste');
   return React.createElement('div', { style:{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:24 } },
     React.createElement('div', { style:{ display:'flex', flexDirection:'column', gap:16 } },
       React.createElement('div', { style:{ background:DS.surface, border:`1px solid ${DS.border}`, borderRadius:8, padding:'24px' } },
@@ -686,7 +912,7 @@ function BrandingSettings() {
       ),
       React.createElement('div', { style:{ background:DS.surface, border:`1px solid ${DS.border}`, borderRadius:8, padding:'24px' } },
         React.createElement('div', { style:{ fontSize:13, fontWeight:700, color:DS.text, fontFamily:'DM Sans,sans-serif', marginBottom:16 } }, 'Module Names'),
-        [['Leads Inbox','Leads Inbox'],['Pipeline','Pipeline'],['Properties','Properties'],['AI Assistant','AI Assistant']].map(([orig,cur]) =>
+        [['Leads Inbox','Leads Inbox'],['Pipeline','Pipeline'],['Properties','Properties'],['Market Intelligence','Market Intelligence'],['AI Assistant','AI Assistant']].map(([orig,cur]) =>
           React.createElement('div', { key:orig, style:{ marginBottom:10 } },
             React.createElement('label', { style:{ fontSize:10, color:DS.text3, fontFamily:'DM Sans,sans-serif', display:'block', marginBottom:4 } }, orig),
             React.createElement('input', { defaultValue:cur, style:{ width:'100%', padding:'7px 10px', border:`1px solid ${DS.border}`, borderRadius:5, fontSize:12, fontFamily:'DM Sans,sans-serif', outline:'none', boxSizing:'border-box' } }),
@@ -721,7 +947,7 @@ function BrandingSettings() {
       ),
       React.createElement('div', { style:{ background:DS.surface, border:`1px solid ${DS.border}`, borderRadius:8, padding:'24px' } },
         React.createElement('div', { style:{ fontSize:13, fontWeight:700, color:DS.text, fontFamily:'DM Sans,sans-serif', marginBottom:16 } }, 'System Configuration'),
-        [['Currency','USD — US Dollar'],['Language','English / Español'],['Timezone','UTC−06:00 (Mock)'],['Users','15 active'],['AI Tone','Professional & Bilingual'],['Lead SLA','48h first contact']].map(([k,v]) =>
+        [['Currency','USD — US Dollar'],['Language','English / Español'],['Timezone','America/Costa_Rica (CST)'],['Users','15 active'],['AI Tone','Professional & Bilingual'],['Lead SLA','48h first contact']].map(([k,v]) =>
           React.createElement('div', { key:k, style:{ display:'flex', justifyContent:'space-between', padding:'8px 0', borderBottom:`1px solid ${DS.borderLt}`, fontSize:12, fontFamily:'DM Sans,sans-serif' } },
             React.createElement('span', { style:{ color:DS.text3 } }, k),
             React.createElement('span', { style:{ color:DS.text, fontWeight:600 } }, v),
@@ -854,4 +1080,4 @@ function PlaceholderScreen({ title }) {
   );
 }
 
-Object.assign(window, { Dashboard, LeadsInbox, Pipeline, Inventory, PropertyDetail, MapView, AIAssistant, BrandingSettings, PlaceholderScreen, MiniBar, DonutChart });
+Object.assign(window, { Dashboard, LeadsInbox, Pipeline, Inventory, PropertyDetail, MapView, MarketDashboard, SupplyDemand, PricingIntel, Recommendations, AIAssistant, BrandingSettings, PlaceholderScreen, MiniBar, DonutChart });

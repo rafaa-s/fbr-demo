@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Realty Platform — CRM Demo</title>
+<title>FBR — CRM & Market Intelligence · Santa Cruz, Guanacaste</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -11,9 +11,9 @@
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
-<script src="fbr-data.js?v=5"></script>
+<script src="fbr-data.js?v=3"></script>
 <script>
-// Fallback: ensure all data arrays exist
+// Fallback: ensure all data arrays exist even if fbr-data.js was cached
 (function() {
   var F = window.FBR;
   if (!F.activities) F.activities = [];
@@ -40,17 +40,13 @@ html, body, #root { height:100%; font-family:'DM Sans', sans-serif; }
 <script src="fbr-views.jsx" type="text/babel"></script>
 <script src="fbr-modules.jsx" type="text/babel"></script>
 <script src="fbr-ads.jsx" type="text/babel"></script>
-<script src="fbr-marketing.jsx" type="text/babel"></script>
 <script type="text/babel">
 
-const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{"accentColor":"#C09B57","sidebarColor":"#0F2340","brandName":"Acme Realty","compactMode":false}/*EDITMODE-END*/;
-
-// Legacy route redirect — map old localStorage screen values to new routes
-const LEGACY_ROUTES = { leads:'omnichannel', pipeline:'omnichannel', inbox:'omnichannel', offers:'sales', map:'inventory', 'leads-map':'inventory' };
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{"accentColor":"#C09B57","sidebarColor":"#0F2340","brandName":"Flamingo Beach Realty","compactMode":false}/*EDITMODE-END*/;
 
 // ─── LOGIN ──────────────────────────────────────────────────────────────────
 function LoginScreen({ onLogin }) {
-  const [email, setEmail] = React.useState('demo@acmerealty.example');
+  const [email, setEmail] = React.useState('ceo@flamingobeachrealty.com');
   const [pass, setPass] = React.useState('');
   const [loading, setLoading] = React.useState(false);
 
@@ -60,9 +56,11 @@ function LoginScreen({ onLogin }) {
     setTimeout(() => { setLoading(false); onLogin(); }, 900);
   }
 
-  // Mock striped placeholder thumbnails for the hero strip
-  const ph = window.FBR && window.FBR._ph ? window.FBR._ph : ((l, h) => '');
-  const heroImgs = [ph('AR-002', 210), ph('AR-003', 188), ph('AR-005', 158)];
+  const heroImgs = [
+    'https://flamingobeachrealty.com/wp-content/uploads/2026/03/View.jpg',
+    'https://flamingobeachrealty.com/wp-content/uploads/2024/08/00-Villa-Margarita-Flamingo-Beachfront.jpg',
+    'https://flamingobeachrealty.com/wp-content/uploads/2023/12/Casa-Todo-Bien-1-3.jpg',
+  ];
 
   return React.createElement('div', { style:{ display:'flex', height:'100vh', overflow:'hidden' } },
     // Left hero panel
@@ -74,16 +72,23 @@ function LoginScreen({ onLogin }) {
         overflow:'hidden',
       }
     },
+      // Subtle texture overlay
       React.createElement('div', { style:{ position:'absolute', inset:0, background:'radial-gradient(ellipse at 65% 35%, rgba(192,155,87,0.18) 0%, transparent 60%)', pointerEvents:'none' } }),
+      // Background property image
+      React.createElement('img', {
+        src:'https://flamingobeachrealty.com/wp-content/uploads/2024/08/00-Villa-Margarita-Flamingo-Beachfront.jpg',
+        style:{ position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', opacity:0.07, pointerEvents:'none' },
+        onError:()=>{},
+      }),
       // Content
       React.createElement('div', { style:{ position:'relative', zIndex:2 } },
         React.createElement('div', { style:{ fontSize:10, fontWeight:700, color:'rgba(192,155,87,0.75)', letterSpacing:'0.16em', textTransform:'uppercase', marginBottom:20, fontFamily:'DM Sans,sans-serif' } },
-          'Demo · Mock Data Only'),
+          'Santa Cruz · Guanacaste · Costa Rica'),
         React.createElement('div', {
-          style:{ fontSize:50, fontWeight:300, color:'#fff', fontFamily:'Cormorant Garamond,Georgia,serif', lineHeight:1.15, marginBottom:20, whiteSpace:'pre-line' }
+          style:{ fontSize:50, fontWeight:300, color:'#fff', fontFamily:'Cormorant Garamond,Georgia,serif', lineHeight:1.15, marginBottom:20 }
         }, 'Command Center\nfor a Premium\nReal Estate\nOperation.'),
         React.createElement('p', { style:{ fontSize:14, color:'rgba(255,255,255,0.5)', fontFamily:'DM Sans,sans-serif', fontWeight:300, lineHeight:1.75, maxWidth:440 } },
-          'CRM de ejecución comercial. Inventario, leads activos y pipeline en un solo lugar. Demo con datos de muestra.'),
+          'CRM de ejecución comercial + Market Intelligence para Santa Cruz, Guanacaste. Inventario real. Leads activos. Inteligencia geográfica accionable.'),
         React.createElement('div', { style:{ display:'flex', gap:32, marginTop:40, borderTop:'1px solid rgba(255,255,255,0.1)', paddingTop:32 } },
           [['$94.8M','Annual Volume'],['84','Active Leads'],['117','Listings Tracked']].map(([v,l]) =>
             React.createElement('div', { key:l },
@@ -92,13 +97,13 @@ function LoginScreen({ onLogin }) {
             )
           ),
         ),
-        // Property image strip (placeholders)
+        // Property image strip
         React.createElement('div', { style:{ display:'flex', gap:8, marginTop:36 } },
           heroImgs.map((src,i) =>
-            React.createElement('img', { key:i, src, style:{ height:58, width:88, objectFit:'cover', borderRadius:4, opacity:0.7, border:'1px solid rgba(255,255,255,0.12)' } })
+            React.createElement('img', { key:i, src, style:{ height:58, width:88, objectFit:'cover', borderRadius:4, opacity:0.65, border:'1px solid rgba(255,255,255,0.12)' }, onError:e=>e.target.style.opacity=0 })
           ),
           React.createElement('div', { style:{ height:58, display:'flex', alignItems:'center', paddingLeft:10 } },
-            React.createElement('span', { style:{ fontSize:11, color:'rgba(255,255,255,0.3)', fontFamily:'DM Sans,sans-serif' } }, '+ mock properties'),
+            React.createElement('span', { style:{ fontSize:11, color:'rgba(255,255,255,0.3)', fontFamily:'DM Sans,sans-serif' } }, '+109 properties'),
           ),
         ),
       ),
@@ -111,11 +116,11 @@ function LoginScreen({ onLogin }) {
       // Brand mark
       React.createElement('div', { style:{ display:'flex', alignItems:'center', gap:10, marginBottom:40 } },
         React.createElement('div', { style:{ width:38, height:38, background:'#0F2340', borderRadius:8, display:'flex', alignItems:'center', justifyContent:'center' } },
-          React.createElement('span', { style:{ fontSize:18, fontWeight:900, color:'#C09B57', fontFamily:'DM Sans,sans-serif', letterSpacing:'-1px' } }, 'AR')
+          React.createElement('span', { style:{ fontSize:20, fontWeight:900, color:'#C09B57', fontFamily:'DM Sans,sans-serif', letterSpacing:'-1px' } }, 'F')
         ),
         React.createElement('div', null,
-          React.createElement('div', { style:{ fontSize:15, fontWeight:700, color:'#0F2340', fontFamily:'DM Sans,sans-serif', letterSpacing:'0.01em' } }, 'Realty Platform'),
-          React.createElement('div', { style:{ fontSize:11, color:'#9C948A', fontFamily:'DM Sans,sans-serif' } }, 'CRM Demo · Mock Data'),
+          React.createElement('div', { style:{ fontSize:15, fontWeight:700, color:'#0F2340', fontFamily:'DM Sans,sans-serif', letterSpacing:'0.01em' } }, 'FBR Platform'),
+          React.createElement('div', { style:{ fontSize:11, color:'#9C948A', fontFamily:'DM Sans,sans-serif' } }, 'CRM & Market Intelligence'),
         ),
       ),
       React.createElement('div', { style:{ marginBottom:32 } },
@@ -137,7 +142,7 @@ function LoginScreen({ onLogin }) {
         } }, loading ? 'Authenticating…' : 'Access Platform →'),
       ),
       React.createElement('div', { style:{ marginTop:32, borderTop:'1px solid #F0EDE8', paddingTop:24, fontSize:11, color:'#9C948A', fontFamily:'DM Sans,sans-serif', textAlign:'center', lineHeight:1.6 } },
-        'Owner CEO · Full Access · Mock workspace'),
+        'Owner CEO · Full Access · 15 team members'),
     ),
   );
 }
@@ -145,10 +150,7 @@ function LoginScreen({ onLogin }) {
 // ─── APP ROUTER ─────────────────────────────────────────────────────────────
 function App() {
   const [loggedIn, setLoggedIn] = React.useState(() => localStorage.getItem('fbr_authed') === '1');
-  const [screen, setScreen] = React.useState(() => {
-    const stored = localStorage.getItem('fbr_screen') || 'dashboard';
-    return LEGACY_ROUTES[stored] || stored;
-  });
+  const [screen, setScreen] = React.useState(() => localStorage.getItem('fbr_screen') || 'dashboard');
   const [selectedProp, setSelectedProp] = React.useState(null);
   const [tweakVisible, setTweakVisible] = React.useState(false);
 
@@ -174,17 +176,24 @@ function App() {
 
   let content;
   switch(screen) {
-    case 'dashboard':   content = React.createElement(Dashboard,           { setScreen:navTo }); break;
-    case 'omnichannel': content = React.createElement(OmnichannelWorkspace, { setScreen:navTo }); break;
-    case 'activities':  content = React.createElement(Activities,           {}); break;
-    case 'ads':         content = React.createElement(AdsIntelligence,      { setScreen:navTo }); break;
-    case 'sales':       content = React.createElement(Sales,                {}); break;
-    case 'marketing':   content = React.createElement(Marketing,            {}); break;
-    case 'inventory':   content = React.createElement(Inventory,            { setScreen:navTo, setSelectedProp }); break;
-    case 'propdetail':  content = React.createElement(PropertyDetail,       { prop:selectedProp, setScreen:navTo }); break;
-    case 'ai':          content = React.createElement(AIAssistant,          {}); break;
-    case 'branding':    content = React.createElement(BrandingSettings,     {}); break;
-    default:            content = React.createElement(PlaceholderScreen,    { title:screen });
+    case 'dashboard':       content = React.createElement(Dashboard,        { setScreen:navTo }); break;
+    case 'leads':           content = React.createElement(LeadsInbox,       { setScreen:navTo }); break;
+    case 'pipeline':        content = React.createElement(Pipeline,          {}); break;
+    case 'activities':      content = React.createElement(Activities,        {}); break;
+    case 'offers':          content = React.createElement(OffersClosings,    {}); break;
+    case 'inbox':           content = React.createElement(OmnichannelInbox,  {}); break;
+    case 'inventory':       content = React.createElement(Inventory,         { setScreen:navTo, setSelectedProp }); break;
+    case 'propdetail':      content = React.createElement(PropertyDetail,    { prop:selectedProp, setScreen:navTo }); break;
+    case 'map':             content = React.createElement(MapView,           { mode:'inventory', setScreen:navTo, setSelectedProp }); break;
+    case 'leads-map':       content = React.createElement(MapView,           { mode:'leads', setScreen:navTo, setSelectedProp }); break;
+    case 'market':          content = React.createElement(MarketDashboard,   { setScreen:navTo }); break;
+    case 'supdem':          content = React.createElement(SupplyDemand,      {}); break;
+    case 'pricing':         content = React.createElement(PricingIntel,      {}); break;
+    case 'recommendations': content = React.createElement(Recommendations,   { setScreen:navTo }); break;
+    case 'ads':             content = React.createElement(AdsIntelligence,   { setScreen:navTo }); break;
+    case 'ai':              content = React.createElement(AIAssistant,       {}); break;
+    case 'branding':        content = React.createElement(BrandingSettings,  {}); break;
+    default:                content = React.createElement(PlaceholderScreen, { title:screen });
   }
 
   return React.createElement('div', { style:{ position:'relative', height:'100vh' } },
@@ -203,15 +212,10 @@ function App() {
           React.createElement('label', { style:{ fontSize:10, fontWeight:700, color:'#9C948A', display:'block', marginBottom:6, textTransform:'uppercase', letterSpacing:'0.1em' } }, 'Navigate to Screen'),
           React.createElement('select', { onChange:e=>navTo(e.target.value), value:screen, style:{ width:'100%', padding:'8px 10px', border:'1px solid #E4DDD0', borderRadius:5, fontSize:12, fontFamily:'DM Sans,sans-serif', outline:'none' } },
             [
-              ['dashboard','Executive Dashboard'],
-              ['omnichannel','Omnichannel'],
-              ['activities','Activities'],
-              ['ads','Ads Intelligence'],
-              ['sales','Sales'],
-              ['marketing','Marketing'],
-              ['inventory','Properties'],
-              ['ai','AI Assistant'],
-              ['branding','Branding & Settings'],
+              ['dashboard','Executive Dashboard'],['leads','Leads Inbox'],['pipeline','Pipeline Kanban'],
+              ['inventory','Inventory List'],['map','Inventory Map'],['leads-map','Leads Map'],
+              ['market','Market Intelligence'],['supdem','Supply vs Demand'],['pricing','Pricing Intelligence'],
+              ['recommendations','Recommendations'],['ai','AI Assistant'],['branding','Branding & Settings'],
             ].map(([v,l]) => React.createElement('option',{key:v,value:v},l)),
           ),
         ),
@@ -222,7 +226,7 @@ function App() {
             style:{ padding:'7px 14px', border:'1px solid #FECACA', borderRadius:5, fontSize:12, cursor:'pointer', fontFamily:'DM Sans,sans-serif', color:'#B82929', background:'#FDE8E8', fontWeight:600 }
           }, '← Show Login Screen'),
         ),
-        React.createElement('div', { style:{ fontSize:11, color:'#C09B57', fontFamily:'DM Sans,sans-serif', fontWeight:600 } }, 'Mock data · 8 listings · 8 leads'),
+        React.createElement('div', { style:{ fontSize:11, color:'#C09B57', fontFamily:'DM Sans,sans-serif', fontWeight:600 } }, '8 real listings · 8 live leads · Leaflet map'),
       ),
     ),
   );
