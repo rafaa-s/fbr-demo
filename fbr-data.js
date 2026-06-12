@@ -542,3 +542,109 @@ window.FBR.agents = [
   { name:'María Fernández', listings:3, leads:11, closings:2, volume:7990000, avatar:'MF', color:'#2B6E4A' },
   { name:'Roberto Méndez', listings:1, leads:7, closings:1, volume:3600000, avatar:'RM', color:'#8B4B8B' },
 ];
+
+// ─── BROKER PERFORMANCE DATA ─────────────────────────────────────────────────
+window.FBR.brokerStats = [
+  { id:'B-001', name:'Jennifer Walsh', avatar:'JW', color:'#C09B57', role:'Senior Broker',
+    email:'jennifer@flamingobeachrealty.com', phone:'+1 305 555 0100',
+    leadsAssigned:31, leadsUntouched:3, responseTimeAvg:1.4,
+    followUpsCompleted:28, followUpsOverdue:4,
+    toursScheduled:12, toursCompleted:9, offersActive:2, offersSent:6,
+    closings:2, closingVolume:9985000, pipelineValue:15185000, estCommission:759250,
+    overdueTasks:4, score:87, trend:[72,78,83,85,87,87], listings:3 },
+  { id:'B-002', name:'Carlos Rodríguez', avatar:'CR', color:'#163061', role:'Senior Broker',
+    email:'carlos@flamingobeachrealty.com', phone:'+506 8888 0200',
+    leadsAssigned:28, leadsUntouched:1, responseTimeAvg:0.8,
+    followUpsCompleted:26, followUpsOverdue:2,
+    toursScheduled:10, toursCompleted:8, offersActive:2, offersSent:5,
+    closings:3, closingVolume:14200000, pipelineValue:37400000, estCommission:1870000,
+    overdueTasks:2, score:93, trend:[80,84,88,91,92,93], listings:2 },
+  { id:'B-003', name:'María Fernández', avatar:'MF', color:'#2B6E4A', role:'Associate Broker',
+    email:'maria@flamingobeachrealty.com', phone:'+506 8888 0300',
+    leadsAssigned:24, leadsUntouched:5, responseTimeAvg:2.1,
+    followUpsCompleted:19, followUpsOverdue:6,
+    toursScheduled:8, toursCompleted:6, offersActive:1, offersSent:4,
+    closings:2, closingVolume:7990000, pipelineValue:12700000, estCommission:635000,
+    overdueTasks:6, score:74, trend:[68,70,73,72,75,74], listings:3 },
+  { id:'B-004', name:'Roberto Méndez', avatar:'RM', color:'#8B4B8B', role:'Associate Broker',
+    email:'roberto@flamingobeachrealty.com', phone:'+506 8888 0400',
+    leadsAssigned:18, leadsUntouched:2, responseTimeAvg:1.9,
+    followUpsCompleted:15, followUpsOverdue:3,
+    toursScheduled:6, toursCompleted:4, offersActive:0, offersSent:2,
+    closings:1, closingVolume:3600000, pipelineValue:8100000, estCommission:405000,
+    overdueTasks:3, score:79, trend:[74,76,78,78,80,79], listings:1 },
+];
+
+// ─── CALENDAR EVENTS ─────────────────────────────────────────────────────────
+window.FBR.calendarEvents = [
+  { id:'CAL-001', type:'tour', date:'2026-06-09', time:'10:00', duration:120, title:'Villa El Alma — Property Tour', lead:'Klaus Müller', agent:'Carlos Rodríguez', property:'FBR-631', status:'confirmed', location:'Peninsula Papagayo', notes:'Bring structural report and HOA docs. Client flying in from Germany.' },
+  { id:'CAL-002', type:'tour', date:'2026-06-10', time:'11:00', duration:90, title:'Casa Alegria — Pre-signing Walkthrough', lead:'Emma Langford', agent:'Jennifer Walsh', property:'FBR-409', status:'confirmed', location:'Las Catalinas', notes:'Buyer attorney attending. Closing expected April 28.' },
+  { id:'CAL-003', type:'tour', date:'2026-06-11', time:'14:00', duration:60, title:'Villa Tuscana — Property Visit', lead:'Yuki Tanaka', agent:'Roberto Méndez', property:'FBR-610', status:'confirmed', location:'Hacienda Pinilla', notes:'Client interested in golf views and 6-car garage.' },
+  { id:'CAL-004', type:'followup', date:'2026-06-09', time:'09:00', duration:30, title:'Re-engagement — Roberto Vega', lead:'Roberto Vega', agent:'Jennifer Walsh', property:'FBR-492', status:'overdue', location:null, notes:'14 days no contact. Price dropped to $3.6M.' },
+  { id:'CAL-005', type:'meeting', date:'2026-06-09', time:'15:00', duration:60, title:'Due Diligence — Grupo Pacífico', lead:'Grupo Inversiones Pacífico', agent:'Carlos Rodríguez', property:'FBR-546', status:'confirmed', location:'FBR Office, Flamingo', notes:'Zoning plans and EIA documents ready.' },
+  { id:'CAL-006', type:'closing', date:'2026-06-28', time:'10:00', duration:120, title:'Casa Alegria — Closing Day', lead:'Emma Langford', agent:'Jennifer Walsh', property:'FBR-409', status:'tentative', location:'Attorney Office, San José', notes:'Commission: $191,000. Wire transfer pre-authorized.' },
+  { id:'CAL-007', type:'owner', date:'2026-06-12', time:'16:00', duration:45, title:'Owner Update — Villa Margarita', lead:null, agent:'Jennifer Walsh', property:'FBR-JB-04', status:'scheduled', location:'Virtual', notes:'Monthly update. Exclusivity expires June 30 — renewal needed.' },
+  { id:'CAL-008', type:'tour', date:'2026-06-13', time:'09:30', duration:90, title:'Villa Margarita — Thornton Family Tour', lead:'M. & S. Thornton', agent:'Jennifer Walsh', property:'FBR-JB-04', status:'pending', location:'Playa Flamingo', notes:'Miami couple, $4–6M budget. Video call confirmation pending.' },
+  { id:'CAL-009', type:'meeting', date:'2026-06-09', time:'08:30', duration:30, title:'Weekly Team Standup', lead:null, agent:'All', property:null, status:'recurring', location:'FBR Office', notes:'Pipeline review and lead assignments.' },
+  { id:'CAL-010', type:'deadline', date:'2026-06-22', time:'17:00', duration:0, title:'Offer Deadline — Klaus Müller Counter', lead:'Klaus Müller', agent:'Carlos Rodríguez', property:'FBR-631', status:'critical', location:null, notes:'Response deadline for $7,350,000 counter. Commission at risk: $367,500.' },
+  { id:'CAL-011', type:'followup', date:'2026-06-10', time:'10:00', duration:20, title:'Follow-up — Andersons Trust', lead:'Andersons Trust', agent:'María Fernández', property:'FBR-430', status:'scheduled', location:null, notes:'3 days no response on counter-offer.' },
+  { id:'CAL-012', type:'tour', date:'2026-06-16', time:'11:00', duration:120, title:'Punta Sabana — Site Visit', lead:'Grupo Inversiones Pacífico', agent:'Carlos Rodríguez', property:'FBR-546', status:'scheduled', location:'Playa Minas', notes:'Full site inspection with development team.' },
+];
+
+// ─── OWNERS & EXCLUSIVITIES ───────────────────────────────────────────────────
+window.FBR.owners = [
+  { id:'OWN-001', name:'The Harrington Estate LLC', country:'USA', flag:'🇺🇸', avatar:'HE', properties:['FBR-JB-04'], broker:'Jennifer Walsh', exclusivity:'active', exclusivityExpires:'2026-06-30', lastContact:'2026-06-07', nextAction:'Monthly check-in. Exclusivity renewal discussion needed.', strategicValue:'high', renewalOpportunity:true, alert:'expiring' },
+  { id:'OWN-002', name:'Grupo Villas del Mar CR', country:'Costa Rica', flag:'🇨🇷', avatar:'GV', properties:['FBR-496','FBR-492'], broker:'María Fernández', exclusivity:'active', exclusivityExpires:'2026-09-15', lastContact:'2026-06-04', nextAction:'Share Q2 market report and showing activity summary.', strategicValue:'high', renewalOpportunity:false, alert:null },
+  { id:'OWN-003', name:'Dr. Werner & Ingrid Schulz', country:'Germany', flag:'🇩🇪', avatar:'WS', properties:['FBR-631'], broker:'Carlos Rodríguez', exclusivity:'active', exclusivityExpires:'2026-07-10', lastContact:'2026-06-02', nextAction:'Active offer in progress with Klaus Müller. Keep owner updated.', strategicValue:'very-high', renewalOpportunity:false, alert:null },
+  { id:'OWN-004', name:'Hacienda Holdings Inc.', country:'Canada', flag:'🇨🇦', avatar:'HH', properties:['FBR-430'], broker:'Carlos Rodríguez', exclusivity:'expiring', exclusivityExpires:'2026-06-15', lastContact:'2026-05-28', nextAction:'Exclusivity expires in 7 days. Renewal call urgent.', strategicValue:'high', renewalOpportunity:true, alert:'expiring-urgent' },
+  { id:'OWN-005', name:'The Castellano Trust', country:'Mexico', flag:'🇲🇽', avatar:'CT', properties:['FBR-409'], broker:'Jennifer Walsh', exclusivity:'active', exclusivityExpires:'2026-08-01', lastContact:'2026-06-08', nextAction:'Offer negotiation active with Emma Langford. Keep owner informed.', strategicValue:'high', renewalOpportunity:false, alert:null },
+  { id:'OWN-006', name:'Pinilla Vista Partners', country:'USA', flag:'🇺🇸', avatar:'PV', properties:['FBR-610'], broker:'Roberto Méndez', exclusivity:'active', exclusivityExpires:'2026-10-20', lastContact:'2026-05-20', nextAction:'No contact in 18 days. Schedule owner update call.', strategicValue:'medium', renewalOpportunity:false, alert:'no-contact' },
+  { id:'OWN-007', name:'Punta Sabana Land Trust', country:'Costa Rica', flag:'🇨🇷', avatar:'PS', properties:['FBR-546'], broker:'Carlos Rodríguez', exclusivity:'active', exclusivityExpires:'2026-12-31', lastContact:'2026-06-06', nextAction:'Coordinate due diligence documentation for Grupo Pacífico.', strategicValue:'very-high', renewalOpportunity:false, alert:null },
+];
+
+// ─── ADMIN / USERS ────────────────────────────────────────────────────────────
+window.FBR.adminUsers = [
+  { id:'U-001', name:'Melanie Engel', email:'ceo@flamingobeachrealty.com', role:'Owner', team:null, status:'active', lastLogin:'Today, 09:12', avatar:'ME', color:'#C09B57' },
+  { id:'U-002', name:'Jennifer Walsh', email:'jennifer@flamingobeachrealty.com', role:'Broker', team:'Flamingo Team', status:'active', lastLogin:'Today, 08:45', avatar:'JW', color:'#C09B57' },
+  { id:'U-003', name:'Carlos Rodríguez', email:'carlos@flamingobeachrealty.com', role:'Broker', team:'Papagayo Team', status:'active', lastLogin:'Today, 09:30', avatar:'CR', color:'#163061' },
+  { id:'U-004', name:'María Fernández', email:'maria@flamingobeachrealty.com', role:'Broker', team:'Flamingo Team', status:'active', lastLogin:'Yesterday, 17:20', avatar:'MF', color:'#2B6E4A' },
+  { id:'U-005', name:'Roberto Méndez', email:'roberto@flamingobeachrealty.com', role:'Broker', team:'South Team', status:'active', lastLogin:'2 days ago', avatar:'RM', color:'#8B4B8B' },
+  { id:'U-006', name:'Valeria Orozco', email:'valeria@flamingobeachrealty.com', role:'Marketing Manager', team:null, status:'active', lastLogin:'Today, 10:01', avatar:'VO', color:'#B87A1A' },
+  { id:'U-007', name:'Diego Ulate', email:'diego@flamingobeachrealty.com', role:'Operations Manager', team:null, status:'active', lastLogin:'3 days ago', avatar:'DU', color:'#5C5650' },
+  { id:'U-008', name:'Sofía Calvo', email:'sofia@flamingobeachrealty.com', role:'Finance', team:null, status:'active', lastLogin:'5 days ago', avatar:'SC', color:'#2A5F8F' },
+  { id:'U-009', name:'Pablo Herrera', email:'pablo@flamingobeachrealty.com', role:'Admin', team:null, status:'inactive', lastLogin:'12 days ago', avatar:'PH', color:'#9C948A' },
+];
+
+window.FBR.auditLog = [
+  { id:'AUD-001', date:'Jun 8, 2026 09:41', user:'Jennifer Walsh', action:'Updated lead status', module:'Revenue Engine', record:'Emma Langford', summary:'Status changed from "Offer pending" to "In Negotiation"' },
+  { id:'AUD-002', date:'Jun 8, 2026 09:30', user:'Carlos Rodríguez', action:'Sent counter-offer', module:'Revenue Engine', record:'Villa El Alma (OFF-002)', summary:'Counter at $7,350,000 sent to Klaus Müller' },
+  { id:'AUD-003', date:'Jun 8, 2026 09:12', user:'Melanie Engel', action:'Login', module:'System', record:null, summary:'Owner CEO login — CR (190.100.xx.xx)' },
+  { id:'AUD-004', date:'Jun 7, 2026 17:20', user:'María Fernández', action:'Added internal note', module:'Revenue Engine', record:'A. Petrov (L-008)', summary:'Note: Lead has gone cold. Recommend re-assigning.' },
+  { id:'AUD-005', date:'Jun 7, 2026 16:45', user:'Valeria Orozco', action:'Paused campaign', module:'Marketing', record:'C-008 Buy Property CR Broad', summary:'Paused: quality score 29/100, CPL $216' },
+  { id:'AUD-006', date:'Jun 7, 2026 15:10', user:'Carlos Rodríguez', action:'Advanced pipeline stage', module:'Revenue Engine', record:'Grupo Pacífico (D-005)', summary:'Stage: Contacted → Qualified' },
+  { id:'AUD-007', date:'Jun 7, 2026 14:00', user:'Roberto Méndez', action:'Scheduled tour', module:'Revenue Engine', record:'Yuki Tanaka + Villa Tuscana', summary:'Tour confirmed Jun 11, 14:00, Hacienda Pinilla' },
+  { id:'AUD-008', date:'Jun 6, 2026 11:30', user:'Melanie Engel', action:'Modified AI controls', module:'Admin', record:'AI Controls', summary:'Disabled autoreplies. Human approval required for all messages.' },
+  { id:'AUD-009', date:'Jun 6, 2026 10:15', user:'Diego Ulate', action:'Imported listings', module:'Admin', record:'Data Management', summary:'3 listings imported from CSV. 1 duplicate merged.' },
+  { id:'AUD-010', date:'Jun 5, 2026 16:40', user:'Sofía Calvo', action:'Viewed commission report', module:'Operations', record:'Finance Manager', summary:'Accessed Q1 2026 commission breakdown' },
+  { id:'AUD-011', date:'Jun 5, 2026 14:20', user:'Jennifer Walsh', action:'AI reply approved', module:'Revenue Engine', record:'Emma Langford (CONV-001)', summary:'AI draft approved and sent via WhatsApp' },
+  { id:'AUD-012', date:'Jun 5, 2026 09:00', user:'Melanie Engel', action:'Added user', module:'Admin', record:'Pablo Herrera', summary:'New Admin user created. Access: Platform Admin.' },
+];
+
+window.FBR.aiConfig = {
+  enabled: true,
+  suggestedRepliesEnabled: true,
+  autoRepliesEnabled: false,
+  humanApprovalRequired: true,
+  allowedChannels: ['whatsapp','email','web'],
+  allowedMessageTypes: ['greeting','property-info','tour-scheduling','follow-up-reminder'],
+  forbiddenTopics: ['price-negotiation','legal-terms','availability-confirmation','offer-submission','closing-terms'],
+  escalationRules: [
+    { trigger:'Price negotiation mentioned', action:'Escalate to assigned broker immediately' },
+    { trigger:'Legal question detected', action:'Forward to legal team. Do not respond.' },
+    { trigger:'Budget > $5M detected', action:'Notify managing broker within 15 minutes' },
+    { trigger:'Offer intent detected', action:'Alert assigned broker. AI must not respond.' },
+    { trigger:'Competitor mentioned', action:'Flag for broker review. Suggest scheduling a call.' },
+  ],
+  lastUpdated:'2026-06-06 11:30',
+  lastUpdatedBy:'Melanie Engel',
+};

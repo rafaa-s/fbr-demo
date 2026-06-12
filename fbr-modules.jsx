@@ -771,13 +771,48 @@ function OffersClosings() {
 // MODULE 4 — OMNICHANNEL INBOX (Centro Conversacional)
 // ═══════════════════════════════════════════════════════════════════════════════
 
-function OmnichannelInbox() {
+const WA_TEMPLATES = [
+  { cat:'Welcome', id:'welcome_new', name:'New Lead Welcome',
+    text:'Hello {{1}}, thank you for your interest in Flamingo Beach Realty! I\'m {{2}}, your dedicated advisor for Guanacaste real estate. I\'d love to understand what you\'re looking for — could you share your ideal property type and budget range?' },
+  { cat:'Property Inquiry', id:'prop_details', name:'Property Details Follow-up',
+    text:'Hi {{1}}, following up on your inquiry about {{2}}. This exclusive property in {{3}} offers exceptional value and lifestyle. I\'d be happy to arrange a private showing at your convenience — when works best for you?' },
+  { cat:'Tour Confirmation', id:'tour_confirm', name:'Tour Confirmation',
+    text:'Hello {{1}}, your property tour is confirmed for {{2}} at {{3}}. We\'ll be visiting {{4}}. Please reply YES to confirm, or let me know if you need to reschedule. Looking forward to showing you this remarkable property!' },
+  { cat:'Tour Reminder', id:'tour_reminder', name:'Tour Day Reminder',
+    text:'Good morning {{1}}! Just a friendly reminder about your property tour today at {{2}}. I\'ll meet you at the entrance at {{3}}. Don\'t hesitate to reach out if you have any questions. See you soon!' },
+  { cat:'Property Match', id:'new_match', name:'New Property Match',
+    text:'Hi {{1}}, I\'ve just listed a property that perfectly matches your criteria! {{2}} in {{3}} — {{4}}, priced at {{5}}. Would you like to schedule a private viewing this week?' },
+  { cat:'Post-Visit Follow-up', id:'post_visit', name:'Post-Visit Follow-up',
+    text:'Hi {{1}}, thank you for visiting with us today! I hope {{2}} impressed you. I\'d love to hear your thoughts — is this the style and setting you were envisioning? I\'m here to answer any questions and explore all your options.' },
+  { cat:'Offer Update', id:'offer_status', name:'Offer Status Update',
+    text:'Hello {{1}}, I have an important update regarding {{2}}. Please reach out at your earliest convenience to discuss the next steps with your legal advisor. I\'m coordinating on my end and will keep you informed throughout the process.' },
+  { cat:'Re-engagement', id:'reactivate', name:'Re-engagement',
+    text:'Hello {{1}}, I hope you\'re doing well! Guanacaste\'s luxury market has some exciting new opportunities that align with your interest in {{2}}. Would you like me to send you a curated selection of our latest exclusivities? No commitment required.' },
+];
+
+function OmnichannelInbox({ setScreen }) {
+  const [hubTab, setHubTab] = React.useState('messages'); // 'leads' | 'pipeline' | 'messages'
+
   const inbox = window.FBR.inbox;
   const [selConv, setSelConv] = React.useState(inbox[0]);
   const [draftText, setDraftText] = React.useState('');
   const [aiMode, setAiMode] = React.useState(false);
   const [chanFilter, setChanFilter] = React.useState('all');
+  const [showTemplates, setShowTemplates] = React.useState(false);
   const msgEndRef = React.useRef(null);
+
+  // --- Lead Inventory Tab state ---
+  const leadsData = window.FBR.leads || [];
+  const [leadSel, setLeadSel] = React.useState(leadsData[0]);
+  const [leadFilter, setLeadFilter] = React.useState('all');
+  const filteredLeads = leadFilter === 'all' ? leadsData : leadsData.filter(l => l.temp === leadFilter);
+
+  // --- Pipeline Tab state ---
+  const pipelineData = window.FBR.pipeline || { stages:[], deals:[] };
+  const pipelineStages = (pipelineData.stages || []).slice(0, -1);
+  const [selDeal, setSelDeal] = React.useState((pipelineData.deals||[])[0] || null);
+  const stageDeals = s => (pipelineData.deals||[]).filter(d => d.stage === s);
+  const stageVal = s => stageDeals(s).reduce((a,d)=>a+d.value,0);
 
   React.useEffect(() => {
     if (selConv) setDraftText(selConv.aiDraft || '');
@@ -833,66 +868,288 @@ function OmnichannelInbox() {
   const matchedProp = selConv ? listings.find(l=>l.id===selConv.matched) : null;
   const matchedLead = selConv ? leads.find(l=>l.name.includes(selConv.lead.split(' ')[0]) || selConv.lead.includes(l.name.split(' ')[0])) : null;
 
-  return React.createElement('div', { style:{ display:'flex', gap:0, height:'calc(100vh - 104px)', overflow:'hidden' } },
+  return React.createElement('div', { style:{ display:'flex', flexDirection:'column', height:'calc(100vh - 104px)', overflow:'hidden', background:_DS.bg } },
+
+    // ── Tab Bar ────────────────────────────────────────────────────────────────
+    React.createElement('div', { style:{ display:'flex', gap:0, background:_DS.surface, borderBottom:`1px solid ${_DS.border}`, flexShrink:0 } },
+      [
+        { id:'leads', label:'Lead Inventory', icon:'👥' },
+        { id:'pipeline', label:'Pipeline', icon:'◈' },
+        { id:'messages', label:'Messages', icon:'💬' },
+      ].map(tab =>
+        React.createElement('button', { key:tab.id, onClick:()=>setHubTab(tab.id), style:{
+          padding:'11px 20px', border:'none', borderBottom: hubTab===tab.id?`2px solid ${_DS.gold}`:'2px solid transparent',
+          background:'transparent', cursor:'pointer', fontSize:13, fontWeight: hubTab===tab.id?700:400,
+          color: hubTab===tab.id?_DS.gold:_DS.text3, fontFamily:'DM Sans,sans-serif',
+          display:'flex', alignItems:'center', gap:6, transition:'color 0.15s',
+        } },
+          React.createElement('span', null, tab.icon),
+          tab.label,
+        )
+      ),
+    ),
+
+    // ── Tab Content ─────────────────────────────────────────────────────────────
+    React.createElement('div', { style:{ flex:1, overflow:'hidden', display:'flex' } },
+
+    // LEAD INVENTORY TAB
+    hubTab === 'leads' && React.createElement('div', { style:{ display:'flex', width:'100%', overflow:'hidden' } },
+      // List
+      React.createElement('div', { style:{ width:320, borderRight:`1px solid ${_DS.border}`, display:'flex', flexDirection:'column', background:_DS.surface } },
+        React.createElement('div', { style:{ padding:'14px 16px', borderBottom:`1px solid ${_DS.border}` } },
+          React.createElement('div', { style:{ fontSize:11, fontWeight:700, color:_DS.text3, textTransform:'uppercase', letterSpacing:'0.1em', fontFamily:'DM Sans,sans-serif', marginBottom:10 } }, `${leadsData.length} LEADS`),
+          React.createElement('div', { style:{ display:'flex', gap:4 } },
+            ['all','hot','warm','cold'].map(f =>
+              React.createElement('button', { key:f, onClick:()=>setLeadFilter(f), style:{
+                padding:'4px 10px', borderRadius:4, border:`1px solid ${leadFilter===f?_DS.gold:_DS.border}`,
+                background:leadFilter===f?_DS.goldDim:'transparent', cursor:'pointer',
+                fontSize:11, fontWeight:600, color:leadFilter===f?_DS.gold:_DS.text2, fontFamily:'DM Sans,sans-serif', textTransform:'capitalize'
+              } }, f)
+            )
+          ),
+        ),
+        React.createElement('div', { style:{ flex:1, overflowY:'auto' } },
+          filteredLeads.map(l =>
+            React.createElement('div', { key:l.id, onClick:()=>setLeadSel(l),
+              style:{ padding:'12px 14px', borderBottom:`1px solid ${_DS.borderLt}`, cursor:'pointer', borderLeft:`3px solid ${leadSel?.id===l.id?_DS.gold:'transparent'}`, background:leadSel?.id===l.id?'rgba(192,155,87,0.05)':'transparent' }
+            },
+              React.createElement('div', { style:{ display:'flex', justifyContent:'space-between', marginBottom:3 } },
+                React.createElement('span', { style:{ fontSize:13, fontWeight:700, color:_DS.text, fontFamily:'DM Sans,sans-serif' } }, `${l.flag} ${l.name}`),
+                React.createElement('span', { style:{ fontSize:10, color:_DS.text3, fontFamily:'DM Sans,sans-serif' } }, l.lastTouch||'New'),
+              ),
+              React.createElement('div', { style:{ fontSize:11, color:_DS.text3, fontFamily:'DM Sans,sans-serif', marginBottom:4 } }, `${l.budget} · ${l.looking}`),
+              React.createElement('div', { style:{ display:'flex', gap:6, alignItems:'center' } },
+                React.createElement('div', { style:{ width:8, height:8, borderRadius:'50%', background:l.temp==='hot'?'#B82929':l.temp==='warm'?'#B87A1A':'#2A5F8F', flexShrink:0 } }),
+                React.createElement('span', { style:{ fontSize:10, color:_DS.text3, fontFamily:'DM Sans,sans-serif' } }, `${l.agent.split(' ')[0]} · Score: ${l.score}`),
+                l.lastTouch===null && React.createElement('span', { style:{ marginLeft:'auto', background:'#FDE8E8', color:'#B82929', fontSize:9, fontWeight:700, borderRadius:4, padding:'2px 5px', fontFamily:'DM Sans,sans-serif' } }, '⚠ UNTOUCHED'),
+              ),
+            )
+          ),
+        ),
+      ),
+      // Detail
+      leadSel && React.createElement('div', { style:{ flex:1, display:'flex', flexDirection:'column', overflow:'hidden', background:_DS.surface } },
+        React.createElement('div', { style:{ padding:'20px 24px', borderBottom:`1px solid ${_DS.border}`, display:'flex', gap:16, alignItems:'center', flexShrink:0 } },
+          React.createElement('div', { style:{ width:44, height:44, borderRadius:'50%', background:leadSel.temp==='hot'?'#B82929':leadSel.temp==='warm'?'#B87A1A':'#2A5F8F', display:'flex', alignItems:'center', justifyContent:'center', color:'#fff', fontSize:16, fontWeight:700, fontFamily:'DM Sans,sans-serif' } }, leadSel.avatar),
+          React.createElement('div', { style:{ flex:1 } },
+            React.createElement('div', { style:{ fontSize:18, fontWeight:700, color:_DS.text, fontFamily:'DM Sans,sans-serif' } }, `${leadSel.flag} ${leadSel.name}`),
+            React.createElement('div', { style:{ fontSize:12, color:_DS.text3, fontFamily:'DM Sans,sans-serif', marginTop:2 } }, `${leadSel.country} · ${leadSel.email} · ${leadSel.phone}`),
+          ),
+          React.createElement('div', { style:{ display:'flex', gap:8 } },
+            ['📞 Call','💬 WhatsApp','✉ Email'].map(a =>
+              React.createElement('button', { key:a, style:{ padding:'8px 14px', background:_DS.navy, color:'#fff', border:'none', borderRadius:6, cursor:'pointer', fontSize:12, fontFamily:'DM Sans,sans-serif', fontWeight:600 } }, a)
+            )
+          ),
+        ),
+        React.createElement('div', { style:{ flex:1, overflowY:'auto', padding:'20px 24px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:20 } },
+          React.createElement('div', null,
+            React.createElement('div', { style:{ fontSize:11, fontWeight:700, color:_DS.text3, letterSpacing:'0.08em', textTransform:'uppercase', marginBottom:14, fontFamily:'DM Sans,sans-serif' } }, 'Lead Profile'),
+            [['Looking for',leadSel.looking],['Budget',leadSel.budget],['Zone',leadSel.zone],['Timeline',leadSel.timeline],['Use',leadSel.use],['Language',leadSel.lang],['Agent',leadSel.agent],['Source',leadSel.source]].map(([k,v]) =>
+              React.createElement('div', { key:k, style:{ display:'flex', justifyContent:'space-between', padding:'8px 0', borderBottom:`1px solid ${_DS.borderLt}`, fontSize:13, fontFamily:'DM Sans,sans-serif' } },
+                React.createElement('span', { style:{ color:_DS.text3 } }, k),
+                React.createElement('span', { style:{ color:_DS.text, fontWeight:600 } }, v),
+              )
+            ),
+            React.createElement('div', { style:{ marginTop:16 } },
+              React.createElement('div', { style:{ fontSize:11, fontWeight:700, color:_DS.text3, letterSpacing:'0.08em', textTransform:'uppercase', marginBottom:10, fontFamily:'DM Sans,sans-serif' } }, 'Lead Score'),
+              React.createElement('div', { style:{ display:'flex', alignItems:'center', gap:12 } },
+                React.createElement('div', { style:{ flex:1, height:6, background:_DS.borderLt, borderRadius:3 } },
+                  React.createElement('div', { style:{ width:`${leadSel.score}%`, height:'100%', background:leadSel.score>80?_DS.success:leadSel.score>50?_DS.warn:_DS.danger, borderRadius:3 } }),
+                ),
+                React.createElement('span', { style:{ fontSize:18, fontWeight:800, color:_DS.text, fontFamily:'DM Sans,sans-serif' } }, leadSel.score),
+              ),
+            ),
+          ),
+          React.createElement('div', null,
+            React.createElement('div', { style:{ fontSize:11, fontWeight:700, color:_DS.text3, letterSpacing:'0.08em', textTransform:'uppercase', marginBottom:14, fontFamily:'DM Sans,sans-serif' } }, 'Matched Properties'),
+            React.createElement('div', { style:{ display:'flex', flexDirection:'column', gap:10 } },
+              (leadSel.matched||[]).map(mid => {
+                const prop = (window.FBR.listings||[]).find(l=>l.id===mid);
+                if (!prop) return null;
+                return React.createElement('div', { key:mid, style:{ display:'flex', gap:10, background:_DS.bg, borderRadius:6, overflow:'hidden', border:`1px solid ${_DS.border}` } },
+                  React.createElement('img', { src:prop.photo1, style:{ width:72, height:56, objectFit:'cover', flexShrink:0 }, onError:e=>e.target.style.display='none' }),
+                  React.createElement('div', { style:{ padding:'8px 10px', flex:1 } },
+                    React.createElement('div', { style:{ fontSize:12, fontWeight:700, color:_DS.text, fontFamily:'DM Sans,sans-serif' } }, prop.title),
+                    React.createElement('div', { style:{ fontSize:11, color:_DS.text3, fontFamily:'DM Sans,sans-serif' } }, prop.neighborhood),
+                    React.createElement('div', { style:{ fontSize:12, fontWeight:700, color:_DS.gold, fontFamily:'DM Sans,sans-serif' } }, prop.price),
+                  ),
+                );
+              }),
+            ),
+          ),
+        ),
+      ),
+    ),
+
+    // PIPELINE TAB
+    hubTab === 'pipeline' && React.createElement('div', { style:{ display:'flex', width:'100%', overflow:'hidden' } },
+      // Kanban
+      React.createElement('div', { style:{ flex:1, display:'flex', flexDirection:'column', overflow:'hidden' } },
+        // KPI bar
+        React.createElement('div', { style:{ padding:'12px 20px', background:_DS.surface, borderBottom:`1px solid ${_DS.border}`, display:'flex', gap:0, flexShrink:0 } },
+          [
+            { label:'Pipeline Total', value:`$${((pipelineData.deals||[]).reduce((a,d)=>a+d.value,0)/1e6).toFixed(1)}M`, color:_DS.gold },
+            { label:'Active Deals', value:(pipelineData.deals||[]).length, color:_DS.text },
+            { label:'Hot Deals', value:(pipelineData.deals||[]).filter(d=>d.temp==='hot').length, color:'#B82929' },
+            { label:'Avg Days', value:`${Math.round((pipelineData.deals||[]).reduce((a,d)=>a+d.days,0)/Math.max((pipelineData.deals||[]).length,1))}d`, color:_DS.text2 },
+          ].map((k,i) =>
+            React.createElement('div', { key:i, style:{ flex:1, padding:'0 20px', borderLeft:i>0?`1px solid ${_DS.borderLt}`:'none' } },
+              React.createElement('div', { style:{ fontSize:10, fontWeight:700, color:_DS.text3, letterSpacing:'0.1em', textTransform:'uppercase', fontFamily:'DM Sans,sans-serif', marginBottom:2 } }, k.label),
+              React.createElement('div', { style:{ fontSize:20, fontWeight:800, color:k.color, fontFamily:'DM Sans,sans-serif' } }, k.value),
+            )
+          ),
+        ),
+        // Stage labels
+        React.createElement('div', { style:{ padding:'8px 20px', background:_DS.bg, borderBottom:`1px solid ${_DS.borderLt}`, display:'flex', gap:2, flexShrink:0 } },
+          pipelineStages.map(s =>
+            React.createElement('div', { key:s, style:{ flex:1, textAlign:'center' } },
+              React.createElement('div', { style:{ fontSize:10, fontWeight:700, color:_DS.text3, fontFamily:'DM Sans,sans-serif', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' } }, s),
+              React.createElement('div', { style:{ fontSize:9, color:_DS.text3, fontFamily:'DM Sans,sans-serif' } },
+                stageDeals(s).length ? `${stageDeals(s).length} · $${(stageVal(s)/1e6).toFixed(1)}M` : '—'
+              ),
+            )
+          ),
+        ),
+        // Kanban columns
+        React.createElement('div', { style:{ flex:1, overflowX:'auto', overflowY:'hidden', display:'flex' } },
+          pipelineStages.map(stage =>
+            React.createElement('div', { key:stage, style:{ minWidth:190, width:190, flexShrink:0, borderRight:`1px solid ${_DS.borderLt}`, display:'flex', flexDirection:'column', overflow:'hidden' } },
+              React.createElement('div', { style:{ flex:1, overflowY:'auto', padding:'8px', display:'flex', flexDirection:'column', gap:5 } },
+                stageDeals(stage).map(d =>
+                  React.createElement('div', { key:d.id, onClick:()=>setSelDeal(d),
+                    style:{ background:_DS.surface, borderRadius:6, padding:'10px 11px', cursor:'pointer',
+                      border:`1px solid ${selDeal?.id===d.id?_DS.gold:d.temp==='hot'?'rgba(184,41,41,0.3)':_DS.borderLt}`,
+                      boxShadow:selDeal?.id===d.id?`0 0 0 2px ${_DS.goldDim}`:'none' }
+                  },
+                    React.createElement('div', { style:{ display:'flex', justifyContent:'space-between', marginBottom:5 } },
+                      React.createElement('div', { style:{ width:8, height:8, borderRadius:'50%', background:d.temp==='hot'?'#B82929':d.temp==='warm'?'#B87A1A':'#2A5F8F', marginTop:3 } }),
+                      React.createElement('span', { style:{ fontSize:9, color:_DS.text3, fontFamily:'DM Sans,sans-serif' } }, d.days===0?'Today':`${d.days}d`),
+                    ),
+                    React.createElement('div', { style:{ fontSize:11, fontWeight:700, color:_DS.text, fontFamily:'DM Sans,sans-serif', marginBottom:2 } }, d.lead),
+                    React.createElement('div', { style:{ fontSize:10, color:_DS.text3, fontFamily:'DM Sans,sans-serif', marginBottom:4 } }, d.prop),
+                    React.createElement('div', { style:{ fontSize:12, fontWeight:800, color:_DS.gold, fontFamily:'DM Sans,sans-serif' } }, `$${(d.value/1e6).toFixed(1)}M`),
+                  )
+                ),
+              ),
+            )
+          ),
+        ),
+      ),
+      // Deal detail panel
+      selDeal && React.createElement('div', { style:{ width:280, borderLeft:`1px solid ${_DS.border}`, display:'flex', flexDirection:'column', background:_DS.surface, overflow:'hidden', flexShrink:0 } },
+        React.createElement('div', { style:{ background:_DS.navy, padding:'14px 16px' } },
+          React.createElement('div', { style:{ fontSize:11, color:_DS.gold, fontFamily:'DM Sans,sans-serif', fontWeight:700, marginBottom:4 } }, selDeal.stage),
+          React.createElement('div', { style:{ fontSize:14, fontWeight:700, color:'#fff', fontFamily:'DM Sans,sans-serif' } }, selDeal.lead),
+          React.createElement('div', { style:{ fontSize:12, color:'rgba(255,255,255,0.6)', fontFamily:'DM Sans,sans-serif', marginTop:2 } }, selDeal.prop),
+          React.createElement('div', { style:{ fontSize:20, fontWeight:800, color:_DS.gold, fontFamily:'DM Sans,sans-serif', marginTop:8 } }, `$${(selDeal.value/1e6).toFixed(2)}M`),
+        ),
+        React.createElement('div', { style:{ flex:1, overflowY:'auto', padding:'14px' } },
+          [['Agent',selDeal.agent],['Days in Stage',`${selDeal.days}d`],['Temp',selDeal.temp],['Next Action',selDeal.next||'—']].map(([k,v]) =>
+            React.createElement('div', { key:k, style:{ display:'flex', justifyContent:'space-between', padding:'7px 0', borderBottom:`1px solid ${_DS.borderLt}`, fontSize:12, fontFamily:'DM Sans,sans-serif' } },
+              React.createElement('span', { style:{ color:_DS.text3 } }, k),
+              React.createElement('span', { style:{ color:_DS.text, fontWeight:600 } }, v),
+            )
+          ),
+        ),
+      ),
+    ),
+
+    // MESSAGES TAB
+    hubTab === 'messages' && React.createElement('div', { style:{ display:'flex', width:'100%', overflow:'hidden' } },
 
     // ── COLUMN 1: Conversation List ──────────────────────────────────────────
     React.createElement('div', { style:{ width:300, borderRight:`1px solid ${_DS.border}`, display:'flex', flexDirection:'column', background:_DS.surface, overflow:'hidden', flexShrink:0 } },
 
-      // Header
+      // Header — conditional: templates header or conversations header
       React.createElement('div', { style:{ padding:'14px 16px', borderBottom:`1px solid ${_DS.border}`, flexShrink:0 } },
-        React.createElement('div', { style:{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10 } },
-          React.createElement('div', { style:{ fontSize:13, fontWeight:700, color:_DS.text, fontFamily:'DM Sans,sans-serif' } }, 'All Conversations'),
-          totalUnread > 0 && React.createElement('span', { style:{ background:'#B82929', color:'#fff', fontSize:11, fontWeight:700, borderRadius:10, padding:'2px 7px', fontFamily:'DM Sans,sans-serif' } }, totalUnread),
-        ),
-        // Channel filters
-        React.createElement('div', { style:{ display:'flex', gap:4, flexWrap:'wrap' } },
-          [['all','All'],['whatsapp','W'],['email','@'],['web','⬡'],['phone','☎']].map(([k,l]) =>
-            React.createElement('button', { key:k, onClick:()=>setChanFilter(k), style:{
-              padding:'3px 8px', borderRadius:4, border:`1px solid ${chanFilter===k?_DS.gold:_DS.border}`,
-              background: chanFilter===k?_DS.goldDim:'transparent', cursor:'pointer', fontSize:11,
-              fontWeight: chanFilter===k?700:400, color: chanFilter===k?_DS.gold:_DS.text3, fontFamily:'DM Sans,sans-serif'
-            } }, l),
-          ),
-        ),
-      ),
-
-      // Conversation list
-      React.createElement('div', { style:{ flex:1, overflowY:'auto' } },
-        filtered.map(conv =>
-          React.createElement('div', { key:conv.id, onClick:()=>setSelConv(conv),
-            style:{
-              padding:'12px 14px', borderBottom:`1px solid ${_DS.borderLt}`, cursor:'pointer',
-              background: selConv?.id===conv.id ? 'rgba(192,155,87,0.06)' : conv.status==='new'?'rgba(192,155,87,0.03)':'transparent',
-              borderLeft:`3px solid ${selConv?.id===conv.id?_DS.gold: conv.unread>0?_DS.gold:'transparent'}`,
-              transition:'background 0.15s',
-            }
-          },
-            React.createElement('div', { style:{ display:'flex', gap:8, alignItems:'flex-start' } },
-              // Avatar + channel badge
-              React.createElement('div', { style:{ position:'relative', flexShrink:0 } },
-                React.createElement(_Avatar, { initials:conv.lead.split(' ').map(w=>w[0]).slice(0,2).join(''), color: conv.temp==='hot'?'#B82929':conv.temp==='warm'?'#B87A1A':'#2A5F8F', size:38 }),
-                React.createElement('div', { style:{ position:'absolute', bottom:-2, right:-2 } },
-                  React.createElement(ChannelIcon, { ch:conv.channel, size:14 }),
-                ),
-              ),
-              React.createElement('div', { style:{ flex:1, minWidth:0 } },
-                React.createElement('div', { style:{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:2 } },
-                  React.createElement('span', { style:{ fontSize:13, fontWeight: conv.unread>0?700:600, color:_DS.text, fontFamily:'DM Sans,sans-serif' } }, `${conv.flag} ${conv.lead}`),
-                  React.createElement('span', { style:{ fontSize:10, color:_DS.text3, fontFamily:'DM Sans,sans-serif', flexShrink:0 } }, conv.lastTime),
-                ),
-                React.createElement('div', { style:{ fontSize:11, color:_DS.text3, fontFamily:'DM Sans,sans-serif', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis', marginBottom:4 } }, conv.lastMsg),
-                React.createElement('div', { style:{ display:'flex', gap:4, alignItems:'center' } },
-                  React.createElement(_TempDot, { temp:conv.temp }),
-                  React.createElement('span', { style:{ fontSize:10, color:_DS.text3, fontFamily:'DM Sans,sans-serif' } }, conv.agent.split(' ')[0]),
-                  conv.unread > 0 && React.createElement('span', { style:{ marginLeft:'auto', background:'#B82929', color:'#fff', fontSize:10, fontWeight:700, borderRadius:8, padding:'1px 6px', fontFamily:'DM Sans,sans-serif' } }, conv.unread),
-                  conv.status === 'stale' && React.createElement('span', { style:{ marginLeft:'auto', background:'#FDE8E8', color:'#B82929', fontSize:9, fontWeight:700, borderRadius:4, padding:'2px 5px', fontFamily:'DM Sans,sans-serif' } }, '⚠ STALE'),
-                  conv.status === 'new' && React.createElement('span', { style:{ marginLeft:'auto', background:'#E3F2EA', color:_DS.success, fontSize:9, fontWeight:700, borderRadius:4, padding:'2px 5px', fontFamily:'DM Sans,sans-serif' } }, 'NEW'),
+        showTemplates
+        ? React.createElement('div', { style:{ display:'flex', alignItems:'center', gap:8 } },
+            React.createElement('button', { onClick:()=>setShowTemplates(false), style:{ background:'none', border:'none', cursor:'pointer', color:_DS.text3, fontSize:18, padding:'0 2px', lineHeight:1 } }, '←'),
+            React.createElement('span', { style:{ fontSize:13, fontWeight:700, color:'#25D366', fontFamily:'DM Sans,sans-serif', display:'flex', alignItems:'center', gap:5 } },
+              React.createElement('span', { style:{ width:8, height:8, borderRadius:'50%', background:'#25D366', display:'inline-block', flexShrink:0 } }),
+              'WA Business Templates',
+            ),
+          )
+        : React.createElement('div', null,
+            React.createElement('div', { style:{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10 } },
+              React.createElement('div', { style:{ fontSize:13, fontWeight:700, color:_DS.text, fontFamily:'DM Sans,sans-serif' } }, 'All Conversations'),
+              React.createElement('div', { style:{ display:'flex', gap:6, alignItems:'center' } },
+                totalUnread > 0 && React.createElement('span', { style:{ background:'#B82929', color:'#fff', fontSize:11, fontWeight:700, borderRadius:10, padding:'2px 7px', fontFamily:'DM Sans,sans-serif' } }, totalUnread),
+                React.createElement('button', { onClick:()=>setShowTemplates(true), style:{ padding:'3px 7px', background:'rgba(37,211,102,0.1)', border:'1px solid rgba(37,211,102,0.4)', borderRadius:4, cursor:'pointer', fontSize:10, fontWeight:700, color:'#25D366', fontFamily:'DM Sans,sans-serif', display:'flex', alignItems:'center', gap:3, lineHeight:1.4 } },
+                  '● WA Templates',
                 ),
               ),
             ),
-          )
-        ),
+            React.createElement('div', { style:{ display:'flex', gap:4, flexWrap:'wrap' } },
+              [['all','All'],['whatsapp','W'],['email','@'],['web','⬡'],['phone','☎']].map(([k,l]) =>
+                React.createElement('button', { key:k, onClick:()=>setChanFilter(k), style:{
+                  padding:'3px 8px', borderRadius:4, border:`1px solid ${chanFilter===k?_DS.gold:_DS.border}`,
+                  background: chanFilter===k?_DS.goldDim:'transparent', cursor:'pointer', fontSize:11,
+                  fontWeight: chanFilter===k?700:400, color: chanFilter===k?_DS.gold:_DS.text3, fontFamily:'DM Sans,sans-serif'
+                } }, l),
+              ),
+            ),
+          ),
       ),
+
+      // Templates panel OR Conversation list
+      showTemplates
+      ? React.createElement('div', { style:{ flex:1, overflowY:'auto', padding:'10px 12px' } },
+          WA_TEMPLATES.map((tmpl) =>
+            React.createElement('div', { key:tmpl.id,
+              style:{ marginBottom:8, background:_DS.bg, borderRadius:8, border:`1px solid ${_DS.border}`, overflow:'hidden' }
+            },
+              React.createElement('div', { style:{ padding:'8px 10px', borderBottom:`1px solid ${_DS.borderLt}` } },
+                React.createElement('span', { style:{ fontSize:9, fontWeight:700, color:'#25D366', textTransform:'uppercase', letterSpacing:'0.06em', fontFamily:'DM Sans,sans-serif', background:'rgba(37,211,102,0.1)', border:'1px solid rgba(37,211,102,0.25)', borderRadius:3, padding:'2px 5px', marginRight:6 } }, tmpl.cat),
+                React.createElement('span', { style:{ fontSize:11, fontWeight:700, color:_DS.text, fontFamily:'DM Sans,sans-serif' } }, tmpl.name),
+              ),
+              React.createElement('div', { style:{ padding:'8px 10px' } },
+                React.createElement('div', { style:{ fontSize:11, color:_DS.text2, fontFamily:'DM Sans,sans-serif', lineHeight:1.5, marginBottom:7 } },
+                  tmpl.text.length > 95 ? tmpl.text.slice(0, 95) + '…' : tmpl.text,
+                ),
+                React.createElement('button', {
+                  onClick:()=>{ setDraftText(tmpl.text); setShowTemplates(false); },
+                  style:{ width:'100%', padding:'5px', background:'rgba(37,211,102,0.1)', border:'1px solid rgba(37,211,102,0.35)', borderRadius:5, cursor:'pointer', fontSize:11, fontWeight:700, color:'#25D366', fontFamily:'DM Sans,sans-serif' }
+                }, 'Use Template'),
+              ),
+            )
+          ),
+        )
+      : React.createElement('div', { style:{ flex:1, overflowY:'auto' } },
+          filtered.map(conv =>
+            React.createElement('div', { key:conv.id, onClick:()=>setSelConv(conv),
+              style:{
+                padding:'12px 14px', borderBottom:`1px solid ${_DS.borderLt}`, cursor:'pointer',
+                background: selConv?.id===conv.id ? 'rgba(192,155,87,0.06)' : conv.status==='new'?'rgba(192,155,87,0.03)':'transparent',
+                borderLeft:`3px solid ${selConv?.id===conv.id?_DS.gold: conv.unread>0?_DS.gold:'transparent'}`,
+                transition:'background 0.15s',
+              }
+            },
+              React.createElement('div', { style:{ display:'flex', gap:8, alignItems:'flex-start' } },
+                React.createElement('div', { style:{ position:'relative', flexShrink:0 } },
+                  React.createElement(_Avatar, { initials:conv.lead.split(' ').map(w=>w[0]).slice(0,2).join(''), color: conv.temp==='hot'?'#B82929':conv.temp==='warm'?'#B87A1A':'#2A5F8F', size:38 }),
+                  React.createElement('div', { style:{ position:'absolute', bottom:-2, right:-2 } },
+                    React.createElement(ChannelIcon, { ch:conv.channel, size:14 }),
+                  ),
+                ),
+                React.createElement('div', { style:{ flex:1, minWidth:0 } },
+                  React.createElement('div', { style:{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:2 } },
+                    React.createElement('span', { style:{ fontSize:13, fontWeight: conv.unread>0?700:600, color:_DS.text, fontFamily:'DM Sans,sans-serif' } }, `${conv.flag} ${conv.lead}`),
+                    React.createElement('span', { style:{ fontSize:10, color:_DS.text3, fontFamily:'DM Sans,sans-serif', flexShrink:0 } }, conv.lastTime),
+                  ),
+                  React.createElement('div', { style:{ fontSize:11, color:_DS.text3, fontFamily:'DM Sans,sans-serif', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis', marginBottom:4 } }, conv.lastMsg),
+                  React.createElement('div', { style:{ display:'flex', gap:4, alignItems:'center' } },
+                    React.createElement(_TempDot, { temp:conv.temp }),
+                    React.createElement('span', { style:{ fontSize:10, color:_DS.text3, fontFamily:'DM Sans,sans-serif' } }, conv.agent.split(' ')[0]),
+                    conv.unread > 0 && React.createElement('span', { style:{ marginLeft:'auto', background:'#B82929', color:'#fff', fontSize:10, fontWeight:700, borderRadius:8, padding:'1px 6px', fontFamily:'DM Sans,sans-serif' } }, conv.unread),
+                    conv.status === 'stale' && React.createElement('span', { style:{ marginLeft:'auto', background:'#FDE8E8', color:'#B82929', fontSize:9, fontWeight:700, borderRadius:4, padding:'2px 5px', fontFamily:'DM Sans,sans-serif' } }, '⚠ STALE'),
+                    conv.status === 'new' && React.createElement('span', { style:{ marginLeft:'auto', background:'#E3F2EA', color:_DS.success, fontSize:9, fontWeight:700, borderRadius:4, padding:'2px 5px', fontFamily:'DM Sans,sans-serif' } }, 'NEW'),
+                  ),
+                ),
+              ),
+            )
+          ),
+        ),
     ),
 
     // ── COLUMN 2: Chat View ──────────────────────────────────────────────────
@@ -1021,6 +1278,10 @@ function OmnichannelInbox() {
         ),
       ),
     ),
+
+    ), // end messages tab wrapper div
+
+    ), // end tab content wrapper div
   );
 }
 

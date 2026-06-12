@@ -16,11 +16,17 @@
 // Fallback: ensure all data arrays exist even if fbr-data.js was cached
 (function() {
   var F = window.FBR;
-  if (!F.activities) F.activities = [];
-  if (!F.offers)     F.offers     = [];
-  if (!F.closings)   F.closings   = [];
-  if (!F.inbox)      F.inbox      = [];
-  if (!F.ads)        F.ads        = { summary:{}, daily:[], campaigns:[], creatives:[], countries:[], attribution:[], recommendations:[] };
+  if (!F.activities)     F.activities     = [];
+  if (!F.offers)         F.offers         = [];
+  if (!F.closings)       F.closings       = [];
+  if (!F.inbox)          F.inbox          = [];
+  if (!F.ads)            F.ads            = { summary:{}, daily:[], campaigns:[], creatives:[], countries:[], attribution:[], recommendations:[] };
+  if (!F.brokerStats)    F.brokerStats    = [];
+  if (!F.calendarEvents) F.calendarEvents = [];
+  if (!F.owners)         F.owners         = [];
+  if (!F.adminUsers)     F.adminUsers     = [];
+  if (!F.auditLog)       F.auditLog       = [];
+  if (!F.aiConfig)       F.aiConfig       = { enabled:true, suggestedRepliesEnabled:true, autoRepliesEnabled:false, humanApprovalRequired:true, allowedChannels:[], allowedMessageTypes:[], forbiddenTopics:[], escalationRules:[] };
 })();
 </script>
 <style>
@@ -40,6 +46,12 @@ html, body, #root { height:100%; font-family:'DM Sans', sans-serif; }
 <script src="fbr-views.jsx" type="text/babel"></script>
 <script src="fbr-modules.jsx" type="text/babel"></script>
 <script src="fbr-ads.jsx" type="text/babel"></script>
+<script src="fbr-command.jsx" type="text/babel"></script>
+<script src="fbr-revenue.jsx" type="text/babel"></script>
+<script src="fbr-intel.jsx" type="text/babel"></script>
+<script src="fbr-marketing.jsx" type="text/babel"></script>
+<script src="fbr-ops.jsx" type="text/babel"></script>
+<script src="fbr-admin.jsx" type="text/babel"></script>
 <script type="text/babel">
 
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{"accentColor":"#C09B57","sidebarColor":"#0F2340","brandName":"Flamingo Beach Realty","compactMode":false}/*EDITMODE-END*/;
@@ -150,7 +162,11 @@ function LoginScreen({ onLogin }) {
 // ─── APP ROUTER ─────────────────────────────────────────────────────────────
 function App() {
   const [loggedIn, setLoggedIn] = React.useState(() => localStorage.getItem('fbr_authed') === '1');
-  const [screen, setScreen] = React.useState(() => localStorage.getItem('fbr_screen') || 'dashboard');
+  const [screen, setScreen] = React.useState(() => {
+    const stored = localStorage.getItem('fbr_screen') || 'command-center';
+    const MIGRATION = { 'dashboard':'command-center','leads':'re-omnichannel','pipeline':'re-omnichannel','activities':'re-calendar','offers':'re-omnichannel','inbox':'re-omnichannel','inventory':'mi-inventory','map':'mi-map','leads-map':'mi-map','market':'mi-inventory','supdem':'mi-pricing','pricing':'mi-pricing','recommendations':'mi-inventory','ads':'mkt-campaigns','ai':'admin-ai','branding':'admin-users','re-leads':'re-omnichannel','re-pipeline':'re-omnichannel','mi-pricing':'mkt-pricing-all','mi-map':'mi-inventory','mi-owners':'mi-inventory','mkt-paid':'mkt-campaigns' };
+    return MIGRATION[stored] || stored;
+  });
   const [selectedProp, setSelectedProp] = React.useState(null);
   const [tweakVisible, setTweakVisible] = React.useState(false);
 
@@ -172,28 +188,63 @@ function App() {
 
   if (!loggedIn) return React.createElement(LoginScreen, { onLogin:()=>setLoggedIn(true) });
 
-  const navTo = (s) => { setScreen(s); };
+  // ── localStorage screen migration (old IDs → new IDs) ───────────────────
+  const SCREEN_MIGRATION = {
+    'dashboard':'command-center', 'leads':'re-omnichannel', 'pipeline':'re-omnichannel',
+    'activities':'re-calendar', 'offers':'re-omnichannel', 'inbox':'re-omnichannel',
+    'inventory':'mi-inventory', 'map':'mi-map', 'leads-map':'mi-map',
+    'market':'mi-inventory', 'supdem':'mi-pricing', 'pricing':'mi-pricing',
+    'recommendations':'mi-inventory', 'ads':'mkt-campaigns', 'ai':'admin-ai',
+    'branding':'admin-users',
+    're-leads':'re-omnichannel', 're-pipeline':'re-omnichannel',
+    'mi-pricing':'mkt-pricing-all', 'mi-map':'mi-inventory', 'mi-owners':'mi-inventory', 'mkt-paid':'mkt-campaigns',
+  };
+
+  const navTo = (s) => { setScreen(SCREEN_MIGRATION[s] || s); };
 
   let content;
   switch(screen) {
-    case 'dashboard':       content = React.createElement(Dashboard,        { setScreen:navTo }); break;
-    case 'leads':           content = React.createElement(LeadsInbox,       { setScreen:navTo }); break;
-    case 'pipeline':        content = React.createElement(Pipeline,          {}); break;
-    case 'activities':      content = React.createElement(Activities,        {}); break;
-    case 'offers':          content = React.createElement(OffersClosings,    {}); break;
-    case 'inbox':           content = React.createElement(OmnichannelInbox,  {}); break;
-    case 'inventory':       content = React.createElement(Inventory,         { setScreen:navTo, setSelectedProp }); break;
-    case 'propdetail':      content = React.createElement(PropertyDetail,    { prop:selectedProp, setScreen:navTo }); break;
-    case 'map':             content = React.createElement(MapView,           { mode:'inventory', setScreen:navTo, setSelectedProp }); break;
-    case 'leads-map':       content = React.createElement(MapView,           { mode:'leads', setScreen:navTo, setSelectedProp }); break;
-    case 'market':          content = React.createElement(MarketDashboard,   { setScreen:navTo }); break;
-    case 'supdem':          content = React.createElement(SupplyDemand,      {}); break;
-    case 'pricing':         content = React.createElement(PricingIntel,      {}); break;
-    case 'recommendations': content = React.createElement(Recommendations,   { setScreen:navTo }); break;
-    case 'ads':             content = React.createElement(AdsIntelligence,   { setScreen:navTo }); break;
-    case 'ai':              content = React.createElement(AIAssistant,       {}); break;
-    case 'branding':        content = React.createElement(BrandingSettings,  {}); break;
-    default:                content = React.createElement(PlaceholderScreen, { title:screen });
+    // ── Command Center ───────────────────────────────────────────────────────
+    case 'command-center':  content = React.createElement(CommandCenter,         { setScreen:navTo }); break;
+
+    // ── Revenue Engine ───────────────────────────────────────────────────────
+    case 're-leads':        content = React.createElement(OmnichannelInbox,      { setScreen:navTo }); break;
+    case 're-omnichannel':  content = React.createElement(OmnichannelInbox,      { setScreen:navTo }); break;
+    case 're-pipeline':     content = React.createElement(OmnichannelInbox,      { setScreen:navTo }); break;
+    case 're-calendar':     content = React.createElement(CalendarTours,         { setScreen:navTo }); break;
+    case 're-brokers':      content = React.createElement(BrokerPerformance,     { setScreen:navTo }); break;
+
+    // ── Market Intelligence ──────────────────────────────────────────────────
+    case 'mi-inventory':    content = React.createElement(InventoryIntelligence,  { setScreen:navTo, setSelectedProp }); break;
+    case 'mi-closings':     content = React.createElement(SalesClosings,          { setScreen:navTo }); break;
+    case 'propdetail':      content = React.createElement(PropertyDetail,         { prop:selectedProp, setScreen:navTo }); break;
+
+    // ── Marketing Performance ────────────────────────────────────────────────
+    case 'mkt-campaigns':   content = React.createElement(CampaignCommandCenter,  { setScreen:navTo }); break;
+    case 'mkt-listings':    content = React.createElement(AllListings,             { setScreen:navTo, setSelectedProp }); break;
+    case 'mkt-pricing-all': content = React.createElement(PricingIntelligenceAll,  { setScreen:navTo }); break;
+    case 'mkt-demographic': content = React.createElement(DemographicAnalysis,     { setScreen:navTo }); break;
+    case 'mkt-supdem':      content = React.createElement(SupplyDemandIntelligence,{ setScreen:navTo }); break;
+    case 'mkt-content':     content = React.createElement(ContentManaging,         { setScreen:navTo }); break;
+    case 'mkt-cms':         content = React.createElement(WebsiteCMS,              { setScreen:navTo }); break;
+
+    // ── Operations ───────────────────────────────────────────────────────────
+    case 'ops-finance':     content = React.createElement(FinanceManager,        { setScreen:navTo }); break;
+    case 'ops-invoicing':   content = React.createElement(ElectronicInvoicing,   { setScreen:navTo }); break;
+    case 'ops-accounting':  content = React.createElement(AccountingManager,     { setScreen:navTo }); break;
+    case 'ops-payroll':     content = React.createElement(PayrollManagement,     { setScreen:navTo }); break;
+    case 'ops-banking':     content = React.createElement(BankingAccess,         { setScreen:navTo }); break;
+
+    // ── Admin ────────────────────────────────────────────────────────────────
+    case 'admin-users':     content = React.createElement(AdminUsers,            { setScreen:navTo }); break;
+    case 'admin-roles':     content = React.createElement(AdminRoles,            { setScreen:navTo }); break;
+    case 'admin-routing':   content = React.createElement(AdminLeadRouting,      { setScreen:navTo }); break;
+    case 'admin-workflows': content = React.createElement(AdminWorkflows,        { setScreen:navTo }); break;
+    case 'admin-data':      content = React.createElement(AdminData,             { setScreen:navTo }); break;
+    case 'admin-audit':     content = React.createElement(AdminAuditLog,         { setScreen:navTo }); break;
+    case 'admin-ai':        content = React.createElement(AdminAIControls,       { setScreen:navTo }); break;
+
+    default:                content = React.createElement(PlaceholderScreen,     { title:screen });
   }
 
   return React.createElement('div', { style:{ position:'relative', height:'100vh' } },
@@ -212,11 +263,26 @@ function App() {
           React.createElement('label', { style:{ fontSize:10, fontWeight:700, color:'#9C948A', display:'block', marginBottom:6, textTransform:'uppercase', letterSpacing:'0.1em' } }, 'Navigate to Screen'),
           React.createElement('select', { onChange:e=>navTo(e.target.value), value:screen, style:{ width:'100%', padding:'8px 10px', border:'1px solid #E4DDD0', borderRadius:5, fontSize:12, fontFamily:'DM Sans,sans-serif', outline:'none' } },
             [
-              ['dashboard','Executive Dashboard'],['leads','Leads Inbox'],['pipeline','Pipeline Kanban'],
-              ['inventory','Inventory List'],['map','Inventory Map'],['leads-map','Leads Map'],
-              ['market','Market Intelligence'],['supdem','Supply vs Demand'],['pricing','Pricing Intelligence'],
-              ['recommendations','Recommendations'],['ai','AI Assistant'],['branding','Branding & Settings'],
-            ].map(([v,l]) => React.createElement('option',{key:v,value:v},l)),
+              ['— Command Center —',null],
+              ['command-center','Command Center'],
+              ['— Revenue Engine / CRM —',null],
+              ['re-omnichannel','Omnichannel'],
+              ['re-calendar','Calendar & Tours'],['re-brokers','Broker Performance'],
+              ['— Commercial Ops —',null],
+              ['mi-inventory','Inventory'],['mi-closings','Sales & Closings'],
+              ['— Market Intelligence —',null],
+              ['mkt-listings','All Listings'],['mkt-pricing-all','Pricing Intelligence'],['mkt-demographic','Demographic'],['mkt-supdem','Supply vs Demand'],
+              ['— Marketing Performance —',null],
+              ['mkt-campaigns','Campaign Center'],['mkt-content','Content'],['mkt-cms','Website CMS'],
+              ['— Financial Ops —',null],
+              ['ops-finance','Finance Manager'],['ops-invoicing','Electronic Invoicing'],['ops-accounting','Accounting'],['ops-payroll','Payroll'],['ops-banking','Banking Access'],
+              ['— Admin —',null],
+              ['admin-users','Users'],['admin-roles','Roles & Permissions'],['admin-routing','Lead Routing'],
+              ['admin-workflows','Workflows'],['admin-data','Data Management'],['admin-audit','Audit Log'],['admin-ai','AI Controls'],
+            ].map(([v,l]) => l===null
+              ? React.createElement('option',{key:v,value:'',disabled:true,style:{color:'#9C948A',fontWeight:700}},v)
+              : React.createElement('option',{key:v,value:v},l)
+            ),
           ),
         ),
         React.createElement('div', { style:{ marginBottom:14 } },
