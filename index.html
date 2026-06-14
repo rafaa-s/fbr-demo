@@ -164,7 +164,7 @@ function App() {
   const [loggedIn, setLoggedIn] = React.useState(() => localStorage.getItem('fbr_authed') === '1');
   const [screen, setScreen] = React.useState(() => {
     const stored = localStorage.getItem('fbr_screen') || 'command-center';
-    const MIGRATION = { 'dashboard':'command-center','leads':'re-omnichannel','pipeline':'re-omnichannel','activities':'re-calendar','offers':'re-omnichannel','inbox':'re-omnichannel','inventory':'mi-inventory','map':'mi-map','leads-map':'mi-map','market':'mi-inventory','supdem':'mi-pricing','pricing':'mi-pricing','recommendations':'mi-inventory','ads':'mkt-campaigns','ai':'admin-ai','branding':'admin-users','re-leads':'re-omnichannel','re-pipeline':'re-omnichannel','mi-pricing':'mkt-pricing-all','mi-map':'mi-inventory','mi-owners':'mi-inventory','mkt-paid':'mkt-campaigns' };
+    const MIGRATION = { 'dashboard':'command-center','leads':'re-omnichannel','pipeline':'re-pipeline','activities':'re-calendar','offers':'re-omnichannel','inbox':'re-omnichannel','inventory':'mi-inventory','map':'mi-map','leads-map':'mi-map','market':'mi-inventory','supdem':'mi-pricing','pricing':'mi-pricing','recommendations':'mi-inventory','ads':'mkt-campaigns','ai':'admin-ai','branding':'admin-users','re-leads':'re-omnichannel','mi-pricing':'mkt-pricing-all','mi-map':'mi-inventory','mi-owners':'mi-inventory','mkt-paid':'mkt-campaigns' };
     return MIGRATION[stored] || stored;
   });
   const [selectedProp, setSelectedProp] = React.useState(null);
@@ -190,13 +190,13 @@ function App() {
 
   // ── localStorage screen migration (old IDs → new IDs) ───────────────────
   const SCREEN_MIGRATION = {
-    'dashboard':'command-center', 'leads':'re-omnichannel', 'pipeline':'re-omnichannel',
+    'dashboard':'command-center', 'leads':'re-omnichannel', 'pipeline':'re-pipeline',
     'activities':'re-calendar', 'offers':'re-omnichannel', 'inbox':'re-omnichannel',
     'inventory':'mi-inventory', 'map':'mi-map', 'leads-map':'mi-map',
     'market':'mi-inventory', 'supdem':'mi-pricing', 'pricing':'mi-pricing',
     'recommendations':'mi-inventory', 'ads':'mkt-campaigns', 'ai':'admin-ai',
     'branding':'admin-users',
-    're-leads':'re-omnichannel', 're-pipeline':'re-omnichannel',
+    're-leads':'re-omnichannel',
     'mi-pricing':'mkt-pricing-all', 'mi-map':'mi-inventory', 'mi-owners':'mi-inventory', 'mkt-paid':'mkt-campaigns',
   };
 
@@ -210,7 +210,7 @@ function App() {
     // ── Revenue Engine ───────────────────────────────────────────────────────
     case 're-leads':        content = React.createElement(OmnichannelInbox,      { setScreen:navTo }); break;
     case 're-omnichannel':  content = React.createElement(OmnichannelInbox,      { setScreen:navTo }); break;
-    case 're-pipeline':     content = React.createElement(OmnichannelInbox,      { setScreen:navTo }); break;
+    case 're-pipeline':     content = React.createElement(Pipeline,             { setScreen:navTo }); break;
     case 're-calendar':     content = React.createElement(CalendarTours,         { setScreen:navTo }); break;
     case 're-brokers':      content = React.createElement(BrokerPerformance,     { setScreen:navTo }); break;
 
@@ -267,6 +267,7 @@ function App() {
               ['command-center','Command Center'],
               ['— Revenue Engine / CRM —',null],
               ['re-omnichannel','Omnichannel'],
+              ['re-pipeline','Pipeline'],
               ['re-calendar','Calendar & Tours'],['re-brokers','Broker Performance'],
               ['— Commercial Ops —',null],
               ['mi-inventory','Inventory'],['mi-closings','Sales & Closings'],

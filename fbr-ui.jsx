@@ -31,9 +31,9 @@ const SECTION_MAP = [
     description: 'Executive visibility — pipeline, risk, brokers, alerts.',
   },
   { id:'crm', label:'CRM', icon:'revenue', defaultScreen:'re-omnichannel',
-    screens:['re-omnichannel','re-calendar'],
-    subtabs:[{id:'re-omnichannel',label:'Omnichannel'},{id:'re-calendar',label:'Calendar & Tours'}],
-    description: 'Omnichannel leads, conversations, calendar and tours.',
+    screens:['re-omnichannel','re-pipeline','re-calendar'],
+    subtabs:[{id:'re-omnichannel',label:'Omnichannel'},{id:'re-pipeline',label:'Pipeline'},{id:'re-calendar',label:'Calendar & Tours'}],
+    description: 'Omnichannel leads, conversations, pipeline, calendar and tours.',
   },
   {
     id:'commercial-ops', label:'Commercial Ops', icon:'market', defaultScreen:'mi-inventory',

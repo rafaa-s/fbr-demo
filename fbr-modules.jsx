@@ -791,7 +791,7 @@ const WA_TEMPLATES = [
 ];
 
 function OmnichannelInbox({ setScreen }) {
-  const [hubTab, setHubTab] = React.useState('messages'); // 'leads' | 'pipeline' | 'messages'
+  const [hubTab, setHubTab] = React.useState('messages'); // 'leads' | 'messages'
 
   const inbox = window.FBR.inbox;
   const [selConv, setSelConv] = React.useState(inbox[0]);
@@ -806,13 +806,6 @@ function OmnichannelInbox({ setScreen }) {
   const [leadSel, setLeadSel] = React.useState(leadsData[0]);
   const [leadFilter, setLeadFilter] = React.useState('all');
   const filteredLeads = leadFilter === 'all' ? leadsData : leadsData.filter(l => l.temp === leadFilter);
-
-  // --- Pipeline Tab state ---
-  const pipelineData = window.FBR.pipeline || { stages:[], deals:[] };
-  const pipelineStages = (pipelineData.stages || []).slice(0, -1);
-  const [selDeal, setSelDeal] = React.useState((pipelineData.deals||[])[0] || null);
-  const stageDeals = s => (pipelineData.deals||[]).filter(d => d.stage === s);
-  const stageVal = s => stageDeals(s).reduce((a,d)=>a+d.value,0);
 
   React.useEffect(() => {
     if (selConv) setDraftText(selConv.aiDraft || '');
@@ -874,7 +867,6 @@ function OmnichannelInbox({ setScreen }) {
     React.createElement('div', { style:{ display:'flex', gap:0, background:_DS.surface, borderBottom:`1px solid ${_DS.border}`, flexShrink:0 } },
       [
         { id:'leads', label:'Lead Inventory', icon:'👥' },
-        { id:'pipeline', label:'Pipeline', icon:'◈' },
         { id:'messages', label:'Messages', icon:'💬' },
       ].map(tab =>
         React.createElement('button', { key:tab.id, onClick:()=>setHubTab(tab.id), style:{
@@ -976,79 +968,6 @@ function OmnichannelInbox({ setScreen }) {
                 );
               }),
             ),
-          ),
-        ),
-      ),
-    ),
-
-    // PIPELINE TAB
-    hubTab === 'pipeline' && React.createElement('div', { style:{ display:'flex', width:'100%', overflow:'hidden' } },
-      // Kanban
-      React.createElement('div', { style:{ flex:1, display:'flex', flexDirection:'column', overflow:'hidden' } },
-        // KPI bar
-        React.createElement('div', { style:{ padding:'12px 20px', background:_DS.surface, borderBottom:`1px solid ${_DS.border}`, display:'flex', gap:0, flexShrink:0 } },
-          [
-            { label:'Pipeline Total', value:`$${((pipelineData.deals||[]).reduce((a,d)=>a+d.value,0)/1e6).toFixed(1)}M`, color:_DS.gold },
-            { label:'Active Deals', value:(pipelineData.deals||[]).length, color:_DS.text },
-            { label:'Hot Deals', value:(pipelineData.deals||[]).filter(d=>d.temp==='hot').length, color:'#B82929' },
-            { label:'Avg Days', value:`${Math.round((pipelineData.deals||[]).reduce((a,d)=>a+d.days,0)/Math.max((pipelineData.deals||[]).length,1))}d`, color:_DS.text2 },
-          ].map((k,i) =>
-            React.createElement('div', { key:i, style:{ flex:1, padding:'0 20px', borderLeft:i>0?`1px solid ${_DS.borderLt}`:'none' } },
-              React.createElement('div', { style:{ fontSize:10, fontWeight:700, color:_DS.text3, letterSpacing:'0.1em', textTransform:'uppercase', fontFamily:'DM Sans,sans-serif', marginBottom:2 } }, k.label),
-              React.createElement('div', { style:{ fontSize:20, fontWeight:800, color:k.color, fontFamily:'DM Sans,sans-serif' } }, k.value),
-            )
-          ),
-        ),
-        // Stage labels
-        React.createElement('div', { style:{ padding:'8px 20px', background:_DS.bg, borderBottom:`1px solid ${_DS.borderLt}`, display:'flex', gap:2, flexShrink:0 } },
-          pipelineStages.map(s =>
-            React.createElement('div', { key:s, style:{ flex:1, textAlign:'center' } },
-              React.createElement('div', { style:{ fontSize:10, fontWeight:700, color:_DS.text3, fontFamily:'DM Sans,sans-serif', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' } }, s),
-              React.createElement('div', { style:{ fontSize:9, color:_DS.text3, fontFamily:'DM Sans,sans-serif' } },
-                stageDeals(s).length ? `${stageDeals(s).length} · $${(stageVal(s)/1e6).toFixed(1)}M` : '—'
-              ),
-            )
-          ),
-        ),
-        // Kanban columns
-        React.createElement('div', { style:{ flex:1, overflowX:'auto', overflowY:'hidden', display:'flex' } },
-          pipelineStages.map(stage =>
-            React.createElement('div', { key:stage, style:{ minWidth:190, width:190, flexShrink:0, borderRight:`1px solid ${_DS.borderLt}`, display:'flex', flexDirection:'column', overflow:'hidden' } },
-              React.createElement('div', { style:{ flex:1, overflowY:'auto', padding:'8px', display:'flex', flexDirection:'column', gap:5 } },
-                stageDeals(stage).map(d =>
-                  React.createElement('div', { key:d.id, onClick:()=>setSelDeal(d),
-                    style:{ background:_DS.surface, borderRadius:6, padding:'10px 11px', cursor:'pointer',
-                      border:`1px solid ${selDeal?.id===d.id?_DS.gold:d.temp==='hot'?'rgba(184,41,41,0.3)':_DS.borderLt}`,
-                      boxShadow:selDeal?.id===d.id?`0 0 0 2px ${_DS.goldDim}`:'none' }
-                  },
-                    React.createElement('div', { style:{ display:'flex', justifyContent:'space-between', marginBottom:5 } },
-                      React.createElement('div', { style:{ width:8, height:8, borderRadius:'50%', background:d.temp==='hot'?'#B82929':d.temp==='warm'?'#B87A1A':'#2A5F8F', marginTop:3 } }),
-                      React.createElement('span', { style:{ fontSize:9, color:_DS.text3, fontFamily:'DM Sans,sans-serif' } }, d.days===0?'Today':`${d.days}d`),
-                    ),
-                    React.createElement('div', { style:{ fontSize:11, fontWeight:700, color:_DS.text, fontFamily:'DM Sans,sans-serif', marginBottom:2 } }, d.lead),
-                    React.createElement('div', { style:{ fontSize:10, color:_DS.text3, fontFamily:'DM Sans,sans-serif', marginBottom:4 } }, d.prop),
-                    React.createElement('div', { style:{ fontSize:12, fontWeight:800, color:_DS.gold, fontFamily:'DM Sans,sans-serif' } }, `$${(d.value/1e6).toFixed(1)}M`),
-                  )
-                ),
-              ),
-            )
-          ),
-        ),
-      ),
-      // Deal detail panel
-      selDeal && React.createElement('div', { style:{ width:280, borderLeft:`1px solid ${_DS.border}`, display:'flex', flexDirection:'column', background:_DS.surface, overflow:'hidden', flexShrink:0 } },
-        React.createElement('div', { style:{ background:_DS.navy, padding:'14px 16px' } },
-          React.createElement('div', { style:{ fontSize:11, color:_DS.gold, fontFamily:'DM Sans,sans-serif', fontWeight:700, marginBottom:4 } }, selDeal.stage),
-          React.createElement('div', { style:{ fontSize:14, fontWeight:700, color:'#fff', fontFamily:'DM Sans,sans-serif' } }, selDeal.lead),
-          React.createElement('div', { style:{ fontSize:12, color:'rgba(255,255,255,0.6)', fontFamily:'DM Sans,sans-serif', marginTop:2 } }, selDeal.prop),
-          React.createElement('div', { style:{ fontSize:20, fontWeight:800, color:_DS.gold, fontFamily:'DM Sans,sans-serif', marginTop:8 } }, `$${(selDeal.value/1e6).toFixed(2)}M`),
-        ),
-        React.createElement('div', { style:{ flex:1, overflowY:'auto', padding:'14px' } },
-          [['Agent',selDeal.agent],['Days in Stage',`${selDeal.days}d`],['Temp',selDeal.temp],['Next Action',selDeal.next||'—']].map(([k,v]) =>
-            React.createElement('div', { key:k, style:{ display:'flex', justifyContent:'space-between', padding:'7px 0', borderBottom:`1px solid ${_DS.borderLt}`, fontSize:12, fontFamily:'DM Sans,sans-serif' } },
-              React.createElement('span', { style:{ color:_DS.text3 } }, k),
-              React.createElement('span', { style:{ color:_DS.text, fontWeight:600 } }, v),
-            )
           ),
         ),
       ),
